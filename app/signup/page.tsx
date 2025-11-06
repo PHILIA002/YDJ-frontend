@@ -10,7 +10,8 @@ export default function Signup() {
   const [pw, setPw] = useState<string>("");
   const [pwCheck, setPwCheck] = useState<string>("");
 
-  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
+  
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (pw !== pwCheck) {
@@ -22,11 +23,25 @@ export default function Signup() {
     console.log("이메일:", email);
     console.log("비밀번호:", pw);
 
-    // TODO: API 연동 예정
+    // ✅ 백엔드(Spring Boot) API 연동 부분
+    try {
+      const response = await fetch("http://localhost:8080/api/member/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: pw }),
+      });
 
-    // 회원가입 성공 → 로그인 화면으로 이동
-    router.push("/login");
-  };
+      const result = await response.text();
+      alert(result); // 백엔드에서 "회원가입 성공" 또는 에러 메시지 출력
+
+      if (result.includes("성공")) {
+        router.push("/login"); // 회원가입 성공 시 로그인 페이지로 이동
+      }
+    } catch (error) {
+      console.error("회원가입 중 오류 발생:", error);
+      alert("서버 연결 오류! 백엔드 실행 중인지 확인하세요.");
+    }
+  }; // ✅ 여기까지만 닫음. 그 아래는 return!
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
