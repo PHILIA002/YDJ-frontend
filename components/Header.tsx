@@ -48,7 +48,7 @@ export default function Header() {
           {user ? (
             <span className="px-3 py-1">{user.user_name}님</span>
           ) : (
-            <Link href="/login" className="px-3 py-1 bg-gray-700 rounded hover:bg-gray-600 transition">
+            <Link href="/login" className="px-3 py-1 hover:text-blue-500 transition">
               로그인
             </Link>
           )}
@@ -57,12 +57,12 @@ export default function Header() {
           {user ? (
             <button
               onClick={handleLogout}
-              className="px-3 py-1 bg-gray-700 rounded hover:bg-gray-600 transition"
+              className="px-3 py-1 hover:text-gray-600 transition"
             >
               로그아웃
             </button>
           ) : (
-            <Link href="/signup" className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-500 transition">
+            <Link href="/signup" className="px-3 py-1 hover:text-blue-500 transition">
               회원가입
             </Link>
           )}
