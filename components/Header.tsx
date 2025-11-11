@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
 
@@ -9,6 +9,8 @@ export default function Header() {
   const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,8 +24,28 @@ export default function Header() {
     setMenuOpen(false);
   };
 
+  // ✅ 바깥 클릭 시 메뉴 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
+
   return (
-    <header className="fixed top-0 left-0 w-full h-16 bg-gray-900 text-white flex items-center px-6 shadow-md z-50">
+    <header
+      ref={menuRef}
+      className="fixed top-0 left-0 gap-4 w-full h-16 bg-gray-900 text-white flex items-center px-6 shadow-md z-50"
+    >
       {/* 로고 */}
       <div className="flex-shrink-0">
         <Link href="/">
@@ -46,10 +68,12 @@ export default function Header() {
       </form>
 
       {/* 로그인 / 회원가입 */}
-      <ul className="hidden md:flex gap-4 items-center flex-shrink-0 z-50">
+      <ul className="hidden md:flex items-center flex-shrink-0 z-50">
         <li>
           {user ? (
-            <span className="px-3 py-1">{user.user_name}님</span>
+            <span className="px-3 py-1">
+              <b>{user.user_name}</b>님 환영합니다!
+            </span>
           ) : (
             <Link
               href="/login"
@@ -80,20 +104,20 @@ export default function Header() {
 
       {/* 햄버거 버튼 */}
       <button
-        className="relative w-10 h-6 flex flex-col justify-between items-center cursor-pointer z-50 ml-4"
+        className="relative w-10 h-10 flex items-center justify-center cursor-pointer z-50"
         onClick={() => setMenuOpen(!menuOpen)}
       >
         <span
-          className={`block w-8 h-1 bg-white rounded transition-all duration-300 ease-in-out
-          ${menuOpen ? "rotate-45 absolute" : "relative"}`}
+          className={`absolute block w-8 h-1 bg-white rounded transition-all duration-300 ease-in-out
+            ${menuOpen ? "rotate-45" : "-translate-y-2"}`}
         />
         <span
-          className={`block w-8 h-1 bg-white rounded transition-opacity duration-300 ease-in-out
-          ${menuOpen ? "opacity-0" : "opacity-100"}`}
+          className={`absolute block w-8 h-1 bg-white rounded transition-opacity duration-300 ease-in-out
+            ${menuOpen ? "opacity-0" : "opacity-100"}`}
         />
         <span
-          className={`block w-8 h-1 bg-white rounded transition-all duration-300 ease-in-out
-          ${menuOpen ? "-rotate-45 absolute" : "relative"}`}
+          className={`absolute block w-8 h-1 bg-white rounded transition-all duration-300 ease-in-out
+            ${menuOpen ? "-rotate-45" : "translate-y-2"}`}
         />
       </button>
 
