@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Signup() {
@@ -8,6 +8,33 @@ export default function Signup() {
   const [email, setEmail] = useState<string>("");
   const [pw, setPw] = useState<string>("");
   const [pwCheck, setPwCheck] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+
+  // 스크립트 동적 로드 (window 존재 확인 포함)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const script = document.createElement("script");
+      script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  const handleSearchAddress = () => {
+    // 스크립트가 아직 로드되지 않은 경우 대비
+    if (!(window as any).daum || !(window as any).daum.Postcode) {
+      alert("주소 검색 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    new (window as any).daum.Postcode({
+      oncomplete: (data: any) => {
+        setAddress(data.address);
+      },
+    }).open();
+  };
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -18,10 +45,16 @@ export default function Signup() {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/member/signup", {
+      const response = await fetch("http://localhost:8080/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: pw }),
+        body: JSON.stringify({
+          email,
+          password: pw,
+          name,
+          phone,
+          address,
+        }),
       });
 
       const result = await response.text();
@@ -43,6 +76,30 @@ export default function Signup() {
         className="w-full max-w-sm bg-white rounded-xl shadow-lg p-8 space-y-5"
       >
         <h2 className="text-2xl font-bold text-center text-gray-900">회원가입</h2>
+
+        <div>
+          <label className="block text-gray-600 mb-1">이름</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="이름을 입력하세요"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-600 mb-1">전화번호</label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="010-1234-5678"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          />
+        </div>
 
         <div>
           <label className="block text-gray-600 mb-1">이메일</label>
@@ -78,6 +135,26 @@ export default function Signup() {
             className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             required
           />
+        </div>
+
+        <div>
+          <label className="block text-gray-600 mb-1">주소</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={address}
+              readOnly
+              placeholder="주소를 검색하세요"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleSearchAddress}
+              className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500"
+            >
+              검색
+            </button>
+          </div>
         </div>
 
         <button
