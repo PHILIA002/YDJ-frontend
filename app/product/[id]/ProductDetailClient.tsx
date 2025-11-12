@@ -66,6 +66,7 @@ export default function ProductDetailClient({
         productName: product.productName,
         price: product.sellPrice,
         thumbnailUrl: product.thumbnailUrl,
+        mainImg: product.mainImg,
         option: selectedOption,
         color: selectedColor,
         count,
