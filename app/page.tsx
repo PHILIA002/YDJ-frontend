@@ -38,8 +38,6 @@ export default function Home() {
       });
   }, []);
 
-  console.log("렌더링 시 products:", products);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
