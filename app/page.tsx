@@ -54,10 +54,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen justify-self-center">
-      
+
       {/* 배너 슬라이더 */}
       <div className="w-screen relative">
-        <div className="w-full pt-50 relative overflow-hidden">
+        <div className="w-full pt-80 relative overflow-hidden">
           {banners.map((banner, index) => (
             <img
               key={index}
@@ -92,31 +92,29 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">상품 목록</h1>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {/* {products.map((p) => (
+          {products.map((p) => (
             <Link
               key={p.productId}
               href={`/product/${p.productId}`}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition p-5 flex flex-col items-center"
+              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col items-center cursor-pointer"
             >
               <img
                 src={`/images/${p.thumbnailUrl}`}
                 alt={p.productName}
-                className="w-32 h-32 object-cover rounded-md mb-3"
+                className="w-full h-40 object-contain mb-3"
               />
 
-              <div className="text-lg font-semibold text-gray-800 text-center">
+              <p className="text-gray-800 text-center text-sm font-medium mb-1 line-clamp-2 h-10">
                 {p.productName}
-              </div>
-
-              <div className="text-gray-500 text-sm line-through mt-1">
+              </p>
+              <p className="text-gray-500 text-xs line-through">
                 {p.consumerPrice.toLocaleString()}원
-              </div>
-
-              <div className="text-gray-800 font-bold mt-1">
+              </p>
+              <p className="text-blue-600 font-bold mt-1">
                 {p.sellPrice.toLocaleString()}원
-              </div>
+              </p>
             </Link>
-          ))} */}
+          ))}
         </div>
       </div>
     </div >
