@@ -24,7 +24,6 @@ export default function Header() {
     setMenuOpen(false);
   };
 
-  // ✅ 바깥 클릭 시 메뉴 닫기
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -57,7 +56,7 @@ export default function Header() {
       <div className="flex-1 flex justify-center">
         <form onSubmit={handleSearch} className="relative w-full max-w-sm">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-            <img src="/images/search.png" alt="검색" className="w-4 h-4"/>
+            <img src="/images/search.png" alt="검색" className="w-4 h-4" />
           </span>
           <input
             type="text"
@@ -72,7 +71,6 @@ export default function Header() {
       {/* 오른쪽 : 로그인/회원가입 + 햄버거 버튼 */}
       <div className="flex items-center gap-3 flex-shrink-0">
 
-        {/* 로그인/회원가입 */}
         <ul className="hidden md:flex items-center">
           <li>
             {user ? (
@@ -129,11 +127,9 @@ export default function Header() {
         <Link href="/mypage" onClick={() => setMenuOpen(false)} className="block px-3 py-3 hover:bg-gray-700 transition">
           마이페이지
         </Link>
-        {user && (
-          <Link href="/cart" onClick={() => setMenuOpen(false)} className="block px-3 py-3 hover:bg-gray-700 transition">
-            장바구니
-          </Link>
-        )}
+        <Link href="/cart" onClick={() => setMenuOpen(false)} className="block px-3 py-3 hover:bg-gray-700 transition">
+          장바구니
+        </Link>
       </div>
     </header>
   );
