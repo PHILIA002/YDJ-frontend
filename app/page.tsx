@@ -26,7 +26,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/products")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);
@@ -37,6 +37,8 @@ export default function Home() {
         setLoading(false);
       });
   }, []);
+
+  console.log("렌더링 시 products:", products);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -52,8 +54,6 @@ export default function Home() {
       </div>
     );
   }
-
-  console.log("✅ p.mainImg 값 확인:", products.map(p => p.mainImg));
 
   return (
     <div className="min-h-screen justify-self-center">
@@ -104,7 +104,9 @@ export default function Home() {
               <img
                 src={p.mainImg || "/images/default_main.png"}
                 alt={p.productName}
-                className="w-full h-40 object-contain mb-3"
+                width={450}
+                height={450}
+                className="rounded-lg object-contain h-full"
               />
 
               <p className="text-gray-800 text-center text-sm font-medium mb-1 line-clamp-2 h-10">

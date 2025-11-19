@@ -49,7 +49,7 @@ export default function ProductDetailClient({ product }: any) {
 
         </div>
 
-        {/* 🔥🔥🔥 상세 페이지 전체를 하나의 화이트 박스로 묶기 */}
+        {/* 상세 페이지 전체 */}
         <div className="bg-white p-10 rounded-xl shadow space-y-14">
 
           {/* 1. 상세 설명 박스 */}
