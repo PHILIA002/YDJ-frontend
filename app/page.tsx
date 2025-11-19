@@ -18,17 +18,20 @@ const banners = [
 ];
 
 export default function Page() {
-  const [showIntro, setShowIntro] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
 
-  // Hook 순서 유지
+
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 10000);
-    return () => clearTimeout(timer);
+    const seen = localStorage.getItem("introSeen");
+
+    if (seen !== "true") {
+      window.location.href = "/intro";
+    }
   }, []);
 
+  // 3) 상품 불러오기
   useEffect(() => {
     fetch("http://localhost:8080/api/products")
       .then((res) => res.json())
@@ -39,6 +42,7 @@ export default function Page() {
       .catch(() => setLoading(false));
   }, []);
 
+  // 4) 배너 자동 전환
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
@@ -46,58 +50,16 @@ export default function Page() {
     return () => clearInterval(interval);
   }, []);
 
-  // Intro 화면
-  const goHome = () => setShowIntro(false);
-
-  const introLines = ["Your Daily", "Journey"];
-  const renderLine = (line: string, lineIdx: number) =>
-    line.split("").map((char, idx) => {
-      if (lineIdx === 1 && char.toLowerCase() === "o") {
-        return (
-          <img
-            key={idx}
-            src="/images/signature_b.png"
-            alt="O"
-            className="inline-block w-16 h-16 md:w-20 md:h-20 mx-[2px] -mb-2 animate-spin-slow"
-          />
-        );
-      }
-      return (
-        <span key={idx} className="inline-block mx-[1px]">
-          {char}
-        </span>
-      );
-    });
-
-  if (showIntro) {
-    return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center">
-        {introLines.map((line, idx) => (
-          <h1
-            key={idx}
-            className="text-6xl md:text-8xl font-extrabold text-center leading-tight"
-          >
-            {renderLine(line, idx)}
-          </h1>
-        ))}
-        <button
-          onClick={goHome}
-          className="mt-10 px-8 py-4 bg-blue-600 text-white rounded-full text-xl font-semibold"
-        >
-          쇼핑 바로가기
-        </button>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-gray-500">
-        상품 불러오는 중...
+        loading...
+        {/* 회전하는 시그니처 이미지 */}
         <img
-          src="/images/signature_w.png"
-          alt="Loading"
-          className="inline-block w-8 h-8 md:w-20 md:h-20 mx-[2px] -mb-2 animate-spin-slow"
+          src="/images/signature_b.png"
+          alt="loading"
+          className="w-20 h-20 animate-spin-slow"
         />
       </div>
     );
