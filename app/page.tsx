@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
 interface Product {
   productId: number;
@@ -11,16 +16,15 @@ interface Product {
   mainImg: string;
 }
 
-const banners = [
-  "/images/banner1.jpg",
-  "/images/banner2.jpg",
-  "/images/banner3.jpg",
+const bannerImages = [
+  "/images/banner1.png",
+  "/images/banner2.png",
+  "/images/banner3.png",
 ];
 
 export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentBanner, setCurrentBanner] = useState(0);
 
 
   useEffect(() => {
@@ -42,63 +46,56 @@ export default function Page() {
       .catch(() => setLoading(false));
   }, []);
 
-  // 4) 배너 자동 전환
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentBanner((prev) => (prev + 1) % banners.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-gray-500">
-        loading...
-        {/* 회전하는 시그니처 이미지 */}
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        상품 불러오는 중...
         <img
-          src="/images/signature_b.png"
-          alt="loading"
-          className="w-20 h-20 animate-spin-slow"
+          src="/images/signature_w.png"
+          alt="Loading"
+          className="inline-block w-8 h-8 md:w-20 md:h-20 animate-spin-slow"
         />
       </div>
     );
   }
 
-  // Home 화면
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-100">
+    <div className="w-full overflow-x-hidden">
       {/* 배너 슬라이더 */}
-      <div className="w-screen relative overflow-hidden h-[50vh]">
-        {banners.map((banner, index) => (
-          <img
-            key={index}
-            src={banner}
-            alt={`배너 ${index + 1}`}
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-700 ${index === currentBanner ? "opacity-100 z-10" : "opacity-0 z-0"
-              }`}
-          />
-        ))}
-
-        {/* 슬라이더 인디케이터 */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentBanner(index)}
-              className={`w-2 h-2 rounded-full transition-colors duration-300 ease-in-out hover:cursor-pointer ${index === currentBanner
-                ? "bg-white shadow-md"
-                : "bg-white/50 hover:bg-white/80"
-                }`}
-            />
+      <div className="relative w-full">
+        <Swiper
+          modules={[Autoplay, Navigation]}
+          loop={true}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          className="w-full h-full"
+        >
+          {bannerImages.map((src, idx) => (
+            <SwiperSlide key={idx}>
+              <img
+                src={src}
+                alt={`배너 ${idx + 1}`}
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            </SwiperSlide>
           ))}
-        </div>
+
+          {/* 커스텀 버튼 (Swiper 기본 버튼 클래스 사용) */}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-white bg-black/40 p-2 rounded-full hover:bg-black/60 cursor-pointer">
+            <ChevronLeft size={22} />
+          </div>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 text-white bg-black/40 p-2 rounded-full hover:bg-black/60 cursor-pointer">
+            <ChevronRight size={22} />
+          </div>
+        </Swiper>
       </div>
 
-      <div className="w-full max-w-4xl mt-8 px-4">
+      {/* 상품 목록 */}
+      <div className="w-full max-w-4xl mt-8 mx-auto px-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
           상품 목록
         </h1>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           {products.map((p) => (
             <Link

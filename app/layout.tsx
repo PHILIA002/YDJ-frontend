@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Header />
           <main className="flex-1 bg-gray-100 overflow-x-hidden py-16">
-            <div className="max-w-4xl mx-auto px-4">
+            <div className="mx-auto">
               {children}
             </div>
           </main>

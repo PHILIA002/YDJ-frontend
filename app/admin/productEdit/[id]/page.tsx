@@ -39,7 +39,7 @@ export default function ProductEditPage() {
 
   if (loading || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center">
         상품 불러오는 중...
         <img
           src="/images/signature_w.png"
