@@ -12,15 +12,8 @@ export default function ProductDetailBottom({ product }: any) {
   const subImages = product.subImages || [];
 
   const scrollToSection = (ref: any) => {
-    const offset = 120; // 원하는 만큼 조절
-    const top = ref.current!.offsetTop - offset;
-
-    window.scrollTo({
-      top,
-      behavior: "smooth",
-    });
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
 
   // ScrollSpy
   useEffect(() => {
@@ -30,7 +23,7 @@ export default function ProductDetailBottom({ product }: any) {
           if (e.isIntersecting) setActiveTab(e.target.id);
         });
       },
-      { rootMargin: "-80px 0px -60% 0px" }
+      { rootMargin: "-150px 0px -50% 0px" }
     );
 
     [infoRef, sizeRef, recommendRef].forEach((ref) => {
