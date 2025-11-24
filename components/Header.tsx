@@ -75,11 +75,7 @@ export default function Header() {
         <div className="ml-auto flex items-center gap-4 mr-3 text-sm">
           {user ? (
             <>
-<<<<<<< HEAD
-              {user?.role === "ADMIN" && (
-=======
               {user.role?.trim().toUpperCase() === "ADMIN" && (
->>>>>>> main
                 <Link href="/admin" className="hover:text-gray-300">
                   상품 관리
                 </Link>

@@ -18,10 +18,7 @@ interface User {
 interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
-<<<<<<< HEAD
-=======
   refreshUser: () => Promise<void>; // 세션 기반 유저 조회
->>>>>>> main
 }
 
 const UserContext = createContext<UserContextType>({
@@ -32,9 +29,6 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<User | null>(null);
 
-<<<<<<< HEAD
-  /** 🌟 앱 처음 렌더링 시 localStorage에서 로그인 정보 복원 */
-=======
   /** localStorage + 상태 업데이트 */
   const setUser = (data: User | null) => {
     if (data) localStorage.setItem("user", JSON.stringify(data));
@@ -63,7 +57,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   /** 앱 첫 로드 시 로그인 복원 */
->>>>>>> main
   useEffect(() => {
     const saved = localStorage.getItem("user");
     if (saved) {

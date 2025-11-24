@@ -38,36 +38,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { user } = useUser();
 
-<<<<<<< HEAD
-  /** 관리자면 즉시 차단 (장바구니 기능 전부 비활성화) */
-  const isAdmin = user?.role === "ADMIN";
-
-  /** -------------------------
-   *  장바구니 조회
-   --------------------------*/
-  function loadCart() {
-    if (isAdmin) return; // 🔥 관리자 차단
-
-    axios
-      .get("http://localhost:8080/api/cart")
-      .then((res) => {
-        setCart(res.data.items || []);
-      })
-      .catch((err) => {
-        if (err.response?.status === 401) {
-          setCart([]);
-          return;
-        }
-        console.error("장바구니 조회 실패:", err);
-      });
-  }
-
-  /** -------------------------
-   *  장바구니 담기
-   --------------------------*/
-  function addToCart(productId: number, optionId: number | null, quantity: number) {
-    if (isAdmin) return; // 🔥 관리자 차단
-=======
   const isAdmin = user?.role?.toUpperCase() === "ADMIN";
 
   function loadCart() {
@@ -87,7 +57,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function addToCart(productId: number, optionId: number | null, quantity: number) {
     if (isAdmin) return;
->>>>>>> main
 
     axios
       .post("http://localhost:8080/api/cart", { productId, optionId, quantity })
@@ -95,48 +64,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       .catch((err) => console.error("장바구니 담기 실패:", err));
   }
 
-<<<<<<< HEAD
-  /** -------------------------
-   *  수량 변경
-   --------------------------*/
-  function updateQuantity(cartId: number, quantity: number) {
-    if (isAdmin) return; // 🔥 관리자 차단
-
-    axios
-      .put("http://localhost:8080/api/cart/quantity", { cartId, quantity })
-      .then(() => loadCart())
-      .catch((err) => console.error("수량 변경 실패:", err));
-  }
-
-  /** -------------------------
-   *  옵션 변경
-   --------------------------*/
-  function changeOption(cartId: number, newOptionId: number) {
-    if (isAdmin) return; // 🔥 관리자 차단
-
-    axios
-      .put("http://localhost:8080/api/cart/option", { cartId, newOptionId })
-      .then(() => loadCart())
-      .catch((err) => console.error("옵션 변경 실패:", err));
-  }
-
-  /** -------------------------
-   *  항목 삭제
-   --------------------------*/
-  function deleteItem(cartId: number) {
-    if (isAdmin) return; // 🔥 관리자 차단
-
-    axios
-      .delete(`http://localhost:8080/api/cart/${cartId}`)
-      .then(() => loadCart())
-      .catch((err) => console.error("장바구니 삭제 실패:", err));
-  }
-
-  /** 로그인하면 장바구니 자동 로드 */
-  useEffect(() => {
-    if (!user) return;
-    if (isAdmin) return; 
-=======
   function updateQuantity(cartId: number, quantity: number) {
     if (isAdmin) return;
 
@@ -172,25 +99,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setCart([]);      // 관리자 로그인 시에도 장바구니 비우기
       return;
     }
->>>>>>> main
 
     loadCart();
   }, [user]);
 
   return (
     <CartContext.Provider
-<<<<<<< HEAD
-      value={{
-        cart,
-        loadCart,
-        addToCart,
-        updateQuantity,
-        changeOption,
-        deleteItem,
-      }}
-=======
       value={{ cart, loadCart, addToCart, updateQuantity, changeOption, deleteItem }}
->>>>>>> main
     >
       {children}
     </CartContext.Provider>
