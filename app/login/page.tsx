@@ -6,7 +6,6 @@ import { useUser } from "../../context/UserContext";
 export default function LoginPage() {
   const router = useRouter();
   const { setUser } = useUser();
-  const { refreshUser } = useUser();
 
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");

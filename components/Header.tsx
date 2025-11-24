@@ -55,7 +55,7 @@ export default function Header() {
         <div className="ml-auto flex items-center gap-4 mr-3 text-sm">
           {user ? (
             <>
-              {user && (
+              {user?.role === "ADMIN" && (
                 <Link href="/admin" className="hover:text-gray-300">
                   상품 관리
                 </Link>
