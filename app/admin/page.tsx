@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import CategoryTreeAccordion from "./components/CategoryTreeAccordion";
 
 interface Product {
   productId: number;
@@ -61,15 +62,15 @@ export default function AdminMainPage() {
       {/* 🔵 왼쪽 카테고리 트리 */}
       <div className="w-72">
         {categoryTree ? (
-          <Category
+          <CategoryTreeAccordion
             data={categoryTree}
             onSelect={(leafCode) => setSelectedLeaf(leafCode)}
           />
-
         ) : (
           <p>카테고리 불러오는 중...</p>
         )}
       </div>
+
 
       {/* 🟣 오른쪽 상품 리스트 */}
       <div className="flex-1 bg-white rounded-xl shadow p-4">
