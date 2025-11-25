@@ -40,15 +40,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = user?.role?.toUpperCase() === "ADMIN";
 
+  /** 장바구니 불러오기 */
   function loadCart() {
-    // 로그아웃 상태면 즉시 장바구니 비움
+
+    // 1) 로그인 안 되어 있으면 API 호출 금지
     if (!user) {
       setCart([]);
       return;
     }
 
-    if (isAdmin) return;
+    // 2) memberId 없는 경우도 금지 (백엔드에서 NPE 터짐)
+    if (!user?.id) {
+      setCart([]);
+      return;
+    }
 
+    // 3) 관리자면 장바구니 없음 → 호출 금지
+    if (isAdmin) {
+      setCart([]);
+      return;
+    }
+
+    // 4) 여기서만 호출됨 (중복 호출 없음)
     axios
       .get("http://localhost:8080/api/cart")
       .then((res) => setCart(res.data.items || []))
@@ -88,15 +101,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       .then(() => loadCart());
   }
 
-  /** (로그아웃 시 장바구니 비우기) */
+  /** 로그인 변경 감지 */
   useEffect(() => {
+    // 로그아웃 시 즉시 비우기
     if (!user) {
-      setCart([]);      // 로그아웃 시 장바구니 즉시 초기화
+      setCart([]);
       return;
     }
 
     if (isAdmin) {
-      setCart([]);      // 관리자 로그인 시에도 장바구니 비우기
+      setCart([]);
       return;
     }
 

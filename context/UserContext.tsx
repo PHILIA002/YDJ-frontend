@@ -37,7 +37,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUserState(data);
   };
 
-  /** 🌟 세션 기반 로그인 확인 */
+  /** 세션 기반 로그인 확인 */
   const refreshUser = async () => {
     try {
       const res = await fetch("http://localhost:8080/api/auth/me", {
@@ -59,7 +59,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   /** 앱 첫 로드 시 로그인 복원 */
   useEffect(() => {
-    refreshUser();
+    const saved = localStorage.getItem("user");
+    if (saved) {
+      setUserState(JSON.parse(saved)); // refreshUser보다 먼저 불러오기
+    }
+
+    refreshUser(); // 세션 체크로 최신화
   }, []);
 
   return (

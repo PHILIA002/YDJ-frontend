@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Heart, ShoppingCart, LogIn, UserPlus } from "lucide-react";
-import { CATEGORY_TREE } from "../app/lib/categories";
 import { useRouter } from "next/navigation";
 import CategoryTree from "@/components/category/categoryTree";
 
@@ -15,6 +14,17 @@ interface SidebarContentProps {
 export default function SidebarContent({ user, onClose }: SidebarContentProps) {
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const [categoryTree, setCategoryTree] = useState<any>(null);
+
+  useEffect(() => {
+    async function loadTree() {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories/tree`);
+      const data = await res.json();
+      setCategoryTree(data.tree);
+    }
+    loadTree();
+  }, []);
+
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -70,7 +80,7 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
       {/* 카테고리 트리 (compact 모드) */}
       <div className="flex-1 overflow-y-auto py-2">
         <CategoryTree
-          data={CATEGORY_TREE}
+          data={categoryTree}
           mode="compact"
           onSelect={(leafId) => {
             router.push(`/category/${leafId}`);

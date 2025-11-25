@@ -3,9 +3,9 @@
 import { useState } from "react";
 
 interface CategoryTreeProps {
-  data: any; // CATEGORY_TREE 전체 객체
-  onSelect?: (id: string) => void; // leaf 클릭 시 부모가 받는 값
-  mode?: "compact" | "admin"; // compact: 사이드바, admin: 관리자 페이지
+  data: any;
+  onSelect?: (id: string) => void;
+  mode?: "compact" | "admin";
 }
 
 export default function CategoryTree({
@@ -13,19 +13,30 @@ export default function CategoryTree({
   onSelect,
   mode = "admin",
 }: CategoryTreeProps) {
+
   const [openMain, setOpenMain] = useState<string | null>(null);
   const [openSub, setOpenSub] = useState<string | null>(null);
 
-  // 💡 스타일 프리셋
+  // ⭐ data null 체크 (필수!)
+  if (!data) {
+    return (
+      <div className="p-4 text-sm text-gray-500">
+        카테고리를 불러오는 중...
+      </div>
+    );
+  }
+
   const isCompact = mode === "compact";
 
   const style = {
     main: isCompact
       ? "px-4 py-2 font-semibold hover:bg-gray-100 text-sm"
       : "px-4 py-3 font-bold hover:bg-gray-100 text-base",
+
     sub: isCompact
       ? "px-5 py-1 text-sm hover:bg-gray-100"
       : "px-6 py-2 text-sm hover:bg-gray-100",
+
     leaf: isCompact
       ? "ml-6 px-5 py-1 text-sm text-gray-600 hover:text-black hover:bg-gray-100 block"
       : "ml-8 px-5 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md cursor-pointer text-sm",
@@ -39,19 +50,18 @@ export default function CategoryTree({
           : "w-full bg-gray-50 rounded-xl p-4 h-[500px] overflow-y-auto shadow"
       }
     >
+      {/* 🔥 data null이 아님이 확실한 이후 렌더링 시작 */}
       {Object.entries(data).map(([mainCode, mainData]: any) => (
         <div key={mainCode}>
-          {/* 대분류 */}
           <button
-            onClick={() => setOpenMain(openMain === mainCode ? null : mainCode)}
-            className={`${style.main} w-full text-left rounded-md ${
-              openMain === mainCode ? "bg-gray-100" : ""
-            }`}
+            onClick={() =>
+              setOpenMain(openMain === mainCode ? null : mainCode)
+            }
+            className={`${style.main} w-full text-left`}
           >
             {mainData.title}
           </button>
 
-          {/* 중분류 */}
           {openMain === mainCode &&
             Object.entries(mainData.children).map(
               ([subCode, subData]: any) => (
@@ -60,14 +70,11 @@ export default function CategoryTree({
                     onClick={() =>
                       setOpenSub(openSub === subCode ? null : subCode)
                     }
-                    className={`${style.sub} w-full text-left ${
-                      openSub === subCode ? "bg-gray-100" : ""
-                    }`}
+                    className={`${style.sub} w-full text-left`}
                   >
                     {subData.title}
                   </button>
 
-                  {/* 소분류 */}
                   {openSub === subCode &&
                     Object.entries(subData.children).map(
                       ([leafCode, leafName]: any) => (
