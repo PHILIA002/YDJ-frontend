@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useUser } from "../../context/UserContext";
 
 export default function LoginPage() {
+  console.log("[렌더링] LoginPage 컴포넌트 렌더링됨"); // ← 컴포넌트가 제대로 실행되는지
+
   const router = useRouter();
   const { setUser } = useUser();
 
@@ -13,14 +15,21 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("[이벤트] handleLogin 실행됨"); // ← 버튼 클릭 시 실행 여부 확인
 
     if (!id || !pw) {
       alert("아이디와 비밀번호를 입력하세요.");
+      console.log("[검증] 아이디 또는 비밀번호 없음");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/login", {
+      console.log("[FETCH] 요청 준비됨", {
+        email: id.trim(),
+        password: pw.trim(),
+      });
+
+      const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -32,6 +41,7 @@ export default function LoginPage() {
         }),
       });
 
+      console.log("[FETCH] 요청 보냄 → 응답 상태:", response.status); // ← fetch가 나갔는지, 응답 상태
 
       if (response.status === 404) {
         alert("존재하지 않는 사용자입니다.");
@@ -47,8 +57,9 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
+      console.log("[응답] 서버로부터 받은 유저 정보:", data);
 
-      /**  localStorage + setUser */
+      // localStorage에 저장
       setUser({
         id: data.id,
         name: data.name,
@@ -56,7 +67,8 @@ export default function LoginPage() {
         role: data.role,
       });
 
-      // ⭐ 권한 분기 처리
+      console.log("[로그인 완료] 유저 상태 저장됨 → Redirect 시작");
+
       if (data.role === "ADMIN") {
         router.push("/admin/list");
       } else {
@@ -64,7 +76,7 @@ export default function LoginPage() {
       }
 
     } catch (error) {
-      console.error(error);
+      console.error("[ERROR] fetch 요청 중 오류 발생:", error);
       alert("서버 연결 오류 (백엔드 실행 여부 확인 필요)");
     }
   };
