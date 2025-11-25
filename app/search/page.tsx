@@ -19,7 +19,7 @@ export default function SearchPage() {
     const fetchResults = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_URL}/api/search?query=${encodeURIComponent(keyword)}`);
+        const res = await fetch(`${API_URL}/api/searchItems?query=${encodeURIComponent(keyword)}`);
         const data = await res.json();
         setResults(data.items || []);
       } catch (error) {
