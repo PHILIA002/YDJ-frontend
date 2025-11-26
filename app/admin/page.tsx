@@ -15,7 +15,6 @@ interface Product {
 }
 
 export default function AdminMainPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
 
   const [selectedLeaf, setSelectedLeaf] = useState<string | null>(null);
@@ -26,7 +25,7 @@ export default function AdminMainPage() {
   // 카테고리 트리 로드
   useEffect(() => {
     async function loadTree() {
-      const res = await fetch(`${API_URL}/api/categories/tree`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories/tree`);
       const data = await res.json();
       setCategoryTree(data.tree);
     }
@@ -45,7 +44,7 @@ export default function AdminMainPage() {
       setLoading(true);
       try {
         const res = await fetch(
-          `${API_URL}/api/products?category=${selectedLeaf}`
+          `http://localhost:8080/api/products?category=${selectedLeaf}`
         );
         const data = await res.json();
         setProducts(data);

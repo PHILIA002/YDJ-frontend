@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Heart, ShoppingCart, LogIn, UserPlus, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext"; // ⭐ 추가
 
 interface SidebarContentProps {
   user: any;
@@ -19,60 +20,7 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
   const [open, setOpen] = useState<{ [key: string]: boolean }>({});
   const router = useRouter();
 
-  useEffect(() => {
-    async function loadTree() {
-      const res = await fetch("http://localhost:8080/api/categories/tree");
-      const data = await res.json();
-      setOriginalTree(data.tree);
-      setTree(data.tree);
-    }
-    loadTree();
-  }, []);
-
-  //검색어로 트리 필터링
-  useEffect(() => {
-    if (!originalTree) return;
-
-    const q = search.trim().toLowerCase();
-    if (q === "") {
-      setTree(originalTree);
-      return;
-    }
-
-    const filtered: any = {};
-
-    Object.entries(originalTree).forEach(([bigCode, bigNode]: any) => {
-      const bigMatch = bigNode.title.toLowerCase().includes(q);
-      const filteredMid: any = {};
-
-      Object.entries(bigNode.children).forEach(([midCode, midNode]: any) => {
-        const midMatch = midNode.title.toLowerCase().includes(q);
-        const filteredLeaf: any = {};
-
-        Object.entries(midNode.children).forEach(([leafCode, leafName]: any) => {
-          const leafMatch = leafName.toLowerCase().includes(q);
-          if (leafMatch) filteredLeaf[leafCode] = leafName;
-        });
-
-        if (midMatch || Object.keys(filteredLeaf).length > 0) {
-          filteredMid[midCode] = {
-            title: midNode.title,
-            children: filteredLeaf,
-          };
-        }
-      });
-
-      if (bigMatch || Object.keys(filteredMid).length > 0) {
-        filtered[bigCode] = {
-          title: bigNode.title,
-          children: filteredMid,
-        };
-      }
-    });
-
-    setTree(filtered);
-  }, [search, originalTree]);
-
+  const { cart } = useCart(); // ⭐ 장바구니 수량 가져오기
 
   /** 카테고리 트리 불러오기 */
   useEffect(() => {
@@ -115,8 +63,25 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
           <Link href="/wishlist" onClick={onClose}>
             <Heart size={22} className="text-gray-600 hover:text-black" />
           </Link>
-          <Link href="/cart" onClick={onClose}>
+
+          {/* 🔥 카트 아이콘 + 배지 */}
+          <Link href="/cart" onClick={onClose} className="relative">
             <ShoppingCart size={22} className="text-gray-600 hover:text-black" />
+
+            {/* 🔥 배지 표시 */}
+            {cart.length > 0 && (
+              <span
+                className="
+                  absolute -top-2 -right-2 
+                  bg-red-500 text-white 
+                  text-xs font-bold
+                  w-5 h-5 flex items-center justify-center
+                  rounded-full shadow
+                "
+              >
+                {cart.length}
+              </span>
+            )}
           </Link>
         </div>
       </div>
@@ -149,9 +114,7 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
                 {bigNode.title}
                 <ChevronDown
                   size={18}
-                  className={`transition-transform duration-300 ${
-                    open[bigCode] ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform duration-300 ${open[bigCode] ? "rotate-180" : ""}`}
                 />
               </button>
 

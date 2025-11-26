@@ -120,8 +120,8 @@ export default function Page() {
 
 
       {/* 상품 목록 */}
-      <div className="w-full max-w-6xl mt-24 mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+      <div className="w-full max-w-6xl mx-auto my-12 px-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4 text-center">
           상품 목록
         </h1>
 
