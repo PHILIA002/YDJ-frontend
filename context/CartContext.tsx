@@ -1,10 +1,29 @@
 "use client";
 
 import { useUser } from "./UserContext";
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useMemo,
+  useCallback,
+} from "react";
+import axios from "@/context/axiosConfig";
 
 axios.defaults.withCredentials = true;
+
+/** --------------------------------------
+ * Debounce Utility (브라우저 환경 호환)
+ * -------------------------------------- */
+function debounce(callback: (...args: any[]) => void, delay: number) {
+  let timer: ReturnType<typeof setTimeout>;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => callback(...args), delay);
+  };
+}
 
 interface CartItem {
   cartId: number;
@@ -25,6 +44,7 @@ interface CartItem {
 
 interface CartContextType {
   cart: CartItem[];
+  initialLoading: boolean; 
   loadCart: () => void;
   addToCart: (productId: number, optionId: number | null, quantity: number) => void;
   updateQuantity: (cartId: number, quantity: number) => void;
@@ -40,58 +60,122 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
 
   const isAdmin = user?.role?.toUpperCase() === "ADMIN";
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  /** 장바구니 불러오기 */
-  function loadCart() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL; 
+
+
+  /** --------------------------------------
+   * loadCart — 서버에서 장바구니 불러오기
+   * 조건 적고 호출 최소화 (실무 패턴)
+   * -------------------------------------- */
+  const loadCart = useCallback(() => {
     if (!user || !user.id || isAdmin) {
       setCart([]);
+      setInitialLoading(false);
       return;
     }
 
     axios
-      .get("http://localhost:8080/api/cart")
-      .then((res) => {
-        setCart(res.data.items || []);
-      })
-      .catch((err) => {
-        console.error("장바구니 불러오기 실패:", err);
+      .get(`${API_URL}/api/cart`)
+      .then((res) => setCart(res.data.items || []))
+      .finally(() => {
+        setInitialLoading(false);   // ← 페이지 첫 로딩만 종료
       });
-  }
+  }, [user, isAdmin]);
 
+
+  /** --------------------------------------
+   * Debounced loadCart — 연타 대비 서버 요청 줄이기
+   * -------------------------------------- */
+  const debouncedLoadCart = useMemo(() => debounce(loadCart, 250), [loadCart]);
+
+  /** --------------------------------------
+   * Add to Cart
+   * - 서버 요청 후 debouncedLoadCart만 호출
+   * -------------------------------------- */
   function addToCart(productId: number, optionId: number | null, quantity: number) {
     if (isAdmin || !user) return;
 
     axios
-      .post("http://localhost:8080/api/cart", { productId, optionId, quantity })
-      .then(() => loadCart())
+      .post(`${API_URL}/api/cart`, { productId, optionId, quantity })
+      .then(() => debouncedLoadCart())
       .catch((err) => console.error("장바구니 담기 실패:", err));
   }
 
+  /** --------------------------------------
+   * Update Quantity (optimis) UI + debounce)
+   * -------------------------------------- */
   function updateQuantity(cartId: number, quantity: number) {
     if (isAdmin || !user) return;
 
+<<<<<<< HEAD
     axios
       .put("http://localhost:8080/api/cart/quantity", { cartId, quantity })
       .then(() => loadCart())
       .catch((err) => console.error("수량 변경 실패:", err));
+=======
+    // UI 먼저 수정
+    setCart((prev) =>
+      prev.map((item) => (item.cartId === cartId ? { ...item, quantity } : item))
+    );
+
+    // 서버 요청은 디바운스 적용
+    axios
+      .put("http://localhost:8080/api/cart/quantity", { cartId, quantity })
+      .then(() => debouncedLoadCart());
+>>>>>>> dongchimi
   }
 
+  /** --------------------------------------
+   * Change Option (Optimistic UI + debounce)
+   * -------------------------------------- */
   function changeOption(cartId: number, newOptionId: number) {
     if (isAdmin || !user) return;
 
+<<<<<<< HEAD
     axios
       .put("http://localhost:8080/api/cart/option", { cartId, newOptionId })
       .then(() => loadCart())
       .catch((err) => console.error("옵션 변경 실패:", err));
+=======
+    // Optimistic UI 업데이트
+    setCart((prev) =>
+      prev.map((item) => {
+        if (item.cartId !== cartId) return item;
+
+        return {
+          ...item,
+          option: item.option
+            ? { ...item.option, optionId: newOptionId }
+            : { optionId: newOptionId },
+        };
+      })
+    );
+
+
+    // 서버 요청 (디바운스 적용)
+    axios
+      .put("http://localhost:8080/api/cart/option", { cartId, newOptionId })
+      .then(() => debouncedLoadCart());
+>>>>>>> dongchimi
   }
 
+
+  /** --------------------------------------
+   * Delete Item
+   * -------------------------------------- */
   function deleteItem(cartId: number) {
     if (isAdmin || !user) return;
 
     axios
       .delete(`http://localhost:8080/api/cart/${cartId}`)
+<<<<<<< HEAD
       .then(() => loadCart())
       .catch((err) => console.error("아이템 삭제 실패:", err));
+=======
+      .then(() => debouncedLoadCart());
+>>>>>>> dongchimi
   }
 
   /** 장바구니 비우기 */
@@ -99,6 +183,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart([]);
   }
 
+<<<<<<< HEAD
   /** 로그인/로그아웃 및 role 변경 감지 */
   useEffect(() => {
     if (!user || !user.id || isAdmin) {
@@ -108,11 +193,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     loadCart();
   }, [user?.id, isAdmin]);
+=======
+  /** --------------------------------------
+   * 로그인 상태 변화 감지하여 장바구니 로딩
+   * -------------------------------------- */
+  useEffect(() => {
+    if (!user || isAdmin) {
+      setCart([]);
+      return;
+    }
+    loadCart();
+  }, [user, isAdmin, loadCart]);
+>>>>>>> dongchimi
 
   return (
     <CartContext.Provider
       value={{
         cart,
+<<<<<<< HEAD
+=======
+        initialLoading,  
+>>>>>>> dongchimi
         loadCart,
         addToCart,
         updateQuantity,
