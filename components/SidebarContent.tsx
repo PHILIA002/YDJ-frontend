@@ -52,7 +52,7 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
               <Link href="/login" onClick={onClose} className="flex items-center gap-1 text-gray-700 hover:text-black">
                 <LogIn size={20} /> 로그인
               </Link>
-              <Link href="/signup" onClick={onClose} className="flex items-center gap-1 text-gray-700 hover:text-black">
+              <Link href="/join" onClick={onClose} className="flex items-center gap-1 text-gray-700 hover:text-black">
                 <UserPlus size={20} /> 회원가입
               </Link>
             </>
@@ -71,7 +71,6 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
             </>
           )}
         </div>
-
       </div>
 
       {/* 검색 */}
@@ -80,7 +79,7 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
           <Search size={16} className="text-gray-500" />
           <input
             type="text"
-            placeholder="카테고리를 검색하세요"
+            placeholder="카테고리 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="text-black w-full px-2 py-2 outline-none text-sm"
@@ -97,7 +96,7 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
               {/* 대분류 */}
               <button
                 onClick={() => toggleOpen(bigCode)}
-                className="w-full flex items-center justify-between px-2 py-2 text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
+                className="w-full flex items-center justify-between px-2 py-2 text-lg font-semibold text-gray-900 hover:text-gray-700 cursor-pointer"
               >
                 {bigNode.title}
                 <ChevronDown

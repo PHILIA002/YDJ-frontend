@@ -61,7 +61,7 @@ export default function ProductDetailBottom({ product }: any) {
               key={tab}
               className={`
                 group py-4 cursor-pointer transition-all
-                ${activeTab === tab ? "text-blue-600" : "text-gray-500 hover:text-blue-500"}
+                ${activeTab === tab ? "text-black" : "text-gray-500 hover:text-black"}
               `}
               onClick={() => {
                 if (tab === "info") scrollToSection(infoRef);
@@ -76,7 +76,7 @@ export default function ProductDetailBottom({ product }: any) {
               <div
                 className={`
                   h-[3px] w-full mt-2 transition-all origin-left
-                  ${activeTab === tab ? "bg-blue-600 scale-x-100" : "scale-x-0 group-hover:scale-x-100 bg-blue-500"}
+                  ${activeTab === tab ? "bg-black scale-x-100" : "scale-x-0 group-hover:scale-x-100 bg-gray-700"}
                 `}
               />
             </button>

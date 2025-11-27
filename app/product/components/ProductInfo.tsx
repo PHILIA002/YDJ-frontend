@@ -34,25 +34,41 @@ export default function ProductInfo({ product }: { product: Product }) {
   const { user } = useUser();
   const { addToCart } = useCart();
 
-  const [liked, setLiked] = useState(product.userLiked ?? false);
-  const [likeCount, setLikeCount] = useState(product.likeCount ?? 0);
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   /** 좋아요 */
+  const [isLiked, setIsLiked] = useState<boolean>(!!product.userLiked);
+  const [likesCount, setLikesCount] = useState<number>(product.likeCount || 0);
+  const [likeLoading, setLikeLoading] = useState(false);
+
   const handleLike = async () => {
+    if (!user) return router.push("/login"); // 로그인 체크
+    if (likeLoading) return; // 중복 클릭 방지
+
+    setLikeLoading(true);
+    const prevLiked = isLiked;
+    const prevCount = likesCount;
+
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/like/toggle/${product.productId}`,
-        { method: "POST", credentials: "include" }
-      );
-      if (!res.ok) return alert("좋아요 처리 실패");
-      const likedResult = await res.json();
-      setLiked(likedResult);
-      setLikeCount((prev) => (likedResult ? prev + 1 : Math.max(prev - 1, 0)));
-    } catch (e) {
-      console.error("좋아요 요청 실패", e);
+      const res = await fetch(`/api/products/${product.productId}/like`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Like request failed');
+
+      const data = await res.json();
+      // 서버에서 liked(boolean)와 likes(number) 반환 가정
+      setIsLiked(data.liked);
+      setLikesCount(data.likes);
+    } catch (err) {
+      console.error(err);
+      alert('좋아요 처리 실패');
+      // 실패하면 이전 상태 복원
+      setIsLiked(prevLiked);
+      setLikesCount(prevCount);
+    } finally {
+      setLikeLoading(false);
     }
   };
 
@@ -130,13 +146,14 @@ export default function ProductInfo({ product }: { product: Product }) {
   };
 
   return (
-    <div className="flex flex-col items-center md:items-start text-center md:text-left">
+    <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
+
       {/* 카테고리 */}
       {product.categoryPath && (
-        <div className="text-sm text-gray-500 mb-4 flex items-center gap-2">
+        <div className="text-sm text-gray-500 mb-2 flex items-center gap-2">
           {product.categoryPath.split(">").map((cat, idx) => (
             <span key={idx} className="flex items-center gap-2">
-              <span>{cat.trim()}</span>
+              <span className="text-gray-600">{cat.trim()}</span>
               {idx < product.categoryPath.split(">").length - 1 && (
                 <span className="text-gray-400">/</span>
               )}
@@ -145,34 +162,35 @@ export default function ProductInfo({ product }: { product: Product }) {
         </div>
       )}
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.productName}</h1>
+      {/* 상품명 */}
+      <h1 className="text-3xl font-bold text-black">{product.productName}</h1>
 
       {/* 가격 */}
-      <div className="mb-6 text-center md:text-left">
-        <p className="text-gray-400 text-sm line-through">
-          {product.consumerPrice?.toLocaleString()}원
-        </p>
-        {product.consumerPrice &&
-          product.sellPrice &&
-          product.consumerPrice > product.sellPrice && (
-            <span className="text-red-500 text-3xl font-bold">
-              {Math.round(
-                ((product.consumerPrice - product.sellPrice) / product.consumerPrice) * 100
-              )}
-              %
-            </span>
-          )}
+      <div className="mb-6 text-center md:text-left space-y-1">
+        {product.consumerPrice && product.consumerPrice > product.sellPrice && (
+          <span className="text-red-500 text-lg font-semibold">
+            {Math.round(
+              ((product.consumerPrice - product.sellPrice) / product.consumerPrice) * 100
+            )}
+            % 할인
+          </span>
+        )}
+        {product.consumerPrice && (
+          <p className="text-gray-400 text-sm line-through">
+            {product.consumerPrice.toLocaleString()}원
+          </p>
+        )}
         <p className="text-3xl font-bold text-black">{product.sellPrice?.toLocaleString()}원</p>
-        <p className="text-gray-600 mt-2 text-sm">재고: {product.stock}개</p>
+        <p className="text-gray-600 text-sm">재고: {product.stock}개</p>
       </div>
 
-      {/* 옵션 */}
+      {/* 옵션 선택 */}
       {product.isOption && product.options?.length && (
         <div className="mb-6 relative w-full" ref={dropdownRef}>
           <label className="block text-gray-700 mb-2 font-medium">옵션 선택</label>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="w-full border border-gray-300 rounded-lg p-2 text-left cursor-pointer hover:ring-2 hover:ring-blue-400"
+            className="w-full border border-gray-300 rounded-lg p-2 text-left bg-white hover:ring-2 hover:ring-black transition cursor-pointer"
           >
             {selectedOptions.length === 0
               ? "옵션 선택"
@@ -184,7 +202,7 @@ export default function ProductInfo({ product }: { product: Product }) {
                 <li
                   key={opt.optionId}
                   onClick={() => handleSelectOption({ optionId: opt.optionId, value: opt.optionValue })}
-                  className={`p-2 hover:bg-blue-100 hover:cursor-pointer ${selectedOptions.some((o) => o.optionId === opt.optionId) ? "bg-gray-200" : ""
+                  className={`p-2 hover:bg-gray-100 cursor-pointer ${selectedOptions.some((o) => o.optionId === opt.optionId) ? "bg-gray-200" : ""
                     }`}
                 >
                   {opt.optionValue}
@@ -200,10 +218,10 @@ export default function ProductInfo({ product }: { product: Product }) {
         {selectedOptions.map((item) => (
           <div
             key={item.optionId}
-            className="border p-4 rounded-lg shadow-sm flex justify-between items-center w-full"
+            className="border p-4 rounded-xl shadow flex justify-between items-center w-full bg-white"
           >
             <div className="flex-1">
-              <p className="font-medium">{item.value}</p>
+              <p className="font-medium text-black">{item.value}</p>
               <div className="flex items-center gap-3 mt-2">
                 <button
                   onClick={() =>
@@ -213,11 +231,11 @@ export default function ProductInfo({ product }: { product: Product }) {
                       )
                     )
                   }
-                  className="p-2 bg-gray-200 rounded hover:cursor-pointer"
+                  className="p-2 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
                 >
                   <Minus size={16} />
                 </button>
-                <span className="font-semibold">{item.count}</span>
+                <span className="font-semibold text-black">{item.count}</span>
                 <button
                   onClick={() =>
                     setSelectedOptions((prev) =>
@@ -226,7 +244,7 @@ export default function ProductInfo({ product }: { product: Product }) {
                       )
                     )
                   }
-                  className="p-2 bg-gray-200 rounded hover:cursor-pointer"
+                  className="p-2 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
                 >
                   <Plus size={16} />
                 </button>
@@ -234,7 +252,7 @@ export default function ProductInfo({ product }: { product: Product }) {
             </div>
             <button
               onClick={() => setSelectedOptions((prev) => prev.filter((p) => p.optionId !== item.optionId))}
-              className="text-gray-400 hover:text-black hover:cursor-pointer ml-4"
+              className="text-gray-400 hover:text-black transition ml-4"
             >
               <X size={20} />
             </button>
@@ -246,28 +264,24 @@ export default function ProductInfo({ product }: { product: Product }) {
       <div className="flex flex-col md:flex-row items-center gap-4 w-full">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-2 p-2 border rounded-lg transition-all w-full md:w-auto ${liked ? "bg-rose-50 border-rose-300" : "bg-white border-gray-300"
-            } hover:cursor-pointer`}
+          className={`flex items-center gap-2 p-2 border rounded-lg w-full md:w-auto transition cursor-pointer ${isLiked ? "bg-rose-50 border-rose-300" : "bg-white border-gray-300"} hover:ring-2 hover:ring-black`}
         >
-          <Heart
-            className={`w-7 h-7 ${liked ? "fill-rose-500 stroke-rose-500" : "stroke-gray-400"
-              }`}
-          />
-          <span className={`text-base font-medium ${liked ? "text-rose-500" : "text-gray-500"}`}>
-            {likeCount}
+          <Heart className={`w-7 h-7 ${isLiked ? "fill-rose-500 stroke-rose-500" : "stroke-gray-400"}`} />
+          <span className={`text-base font-medium ${isLiked ? "text-rose-500" : "text-gray-500"}`}>
+            {likesCount}
           </span>
         </button>
 
         <button
           onClick={handleAddToCart}
-          className="flex-1 w-full bg-gray-100 text-gray-600 py-3 rounded-lg hover:bg-gray-200 hover:cursor-pointer"
+          className="flex-1 w-full bg-black text-white py-3 rounded-xl hover:bg-gray-900 transition cursor-pointer"
         >
           장바구니
         </button>
 
         <button
           onClick={handleBuyNow}
-          className="flex-1 w-full bg-gray-700 text-white py-3 rounded-lg hover:bg-gray-800 hover:cursor-pointer"
+          className="flex-1 w-full bg-black text-white py-3 rounded-xl hover:bg-gray-900 transition cursor-pointer"
         >
           구매하기
         </button>
