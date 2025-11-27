@@ -83,7 +83,7 @@ export default function SidebarContent({ user, onClose }: SidebarContentProps) {
             placeholder="카테고리를 검색하세요"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent w-full px-2 py-2 outline-none text-sm"
+            className="text-black w-full px-2 py-2 outline-none text-sm"
           />
         </div>
       </div>
