@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "@/context/axiosConfig";
 import {
   createContext,
   useContext,
@@ -32,7 +33,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const [user, setUserState] = useState<User | null>(null);
 
-  /** User 상태 업데이트 (로컬스토리지 금지) */
+  /** User 상태 업데이트 */
   const setUser = (data: User | null) => {
     setUserState(data);
   };
@@ -40,23 +41,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   /** 세션 기반 로그인 복원 */
   const refreshUser = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/me`, {
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        setUserState(null);
-        return;
-      }
-
-      const data = await res.json();
-      setUserState(data);
-    } catch {
+      const res = await axios.get(`${API_URL}/api/auth/me`);
+      setUserState(res.data);
+    } catch (error) {
+      // 401 → 자동 로그아웃 처리됨 (axiosConfig 사용 가정)
       setUserState(null);
     }
   };
 
-  /** 첫 로드시 세션 기반 로그인 체크 */
+  /** 앱 첫 로드시 로그인 체크 */
   useEffect(() => {
     refreshUser();
   }, []);

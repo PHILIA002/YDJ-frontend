@@ -1,12 +1,35 @@
 "use client";
 
 import { useUser } from "./UserContext";
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useMemo,
+  useCallback,
+} from "react";
+import axios from "@/context/axiosConfig";
 
 axios.defaults.withCredentials = true;
 
+<<<<<<< HEAD
 export interface CartItem {
+=======
+/** --------------------------------------
+ * Debounce Utility (브라우저 환경 호환)
+ * -------------------------------------- */
+function debounce(callback: (...args: any[]) => void, delay: number) {
+  let timer: ReturnType<typeof setTimeout>;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => callback(...args), delay);
+  };
+}
+
+interface CartItem {
+>>>>>>> main
   cartId: number;
   productId: number;
   productName: string;
@@ -33,6 +56,7 @@ export interface CartProduct {
 
 interface CartContextType {
   cart: CartItem[];
+  initialLoading: boolean; 
   loadCart: () => void;
   addToCart: (product: CartProduct, optionId: number | null, quantity: number) => void;
   updateQuantity: (cartId: number, quantity: number) => void;
@@ -47,18 +71,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { user } = useUser();
   const isAdmin = user?.role?.toUpperCase() === "ADMIN";
+  const [initialLoading, setInitialLoading] = useState(true);
 
+<<<<<<< HEAD
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   /** 서버에서 장바구니 불러오기 */
   const loadCart = () => {
+=======
+  const API_URL = process.env.NEXT_PUBLIC_API_URL; 
+
+
+  /** --------------------------------------
+   * loadCart — 서버에서 장바구니 불러오기
+   * 조건 적고 호출 최소화 (실무 패턴)
+   * -------------------------------------- */
+  const loadCart = useCallback(() => {
+>>>>>>> main
     if (!user || !user.id || isAdmin) {
       setCart([]);
+      setInitialLoading(false);
       return;
     }
 
     axios
       .get(`${API_URL}/api/cart`)
+<<<<<<< HEAD
       .then((res) => {
         const items = res.data.items || [];
         setCart(items);
@@ -74,6 +112,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
   /** 장바구니에 추가 */
   const addToCart = async (product: CartProduct, optionId: number | null, quantity: number) => {
     if (!user || isAdmin) return;
+=======
+      .then((res) => setCart(res.data.items || []))
+      .finally(() => {
+        setInitialLoading(false);   // ← 페이지 첫 로딩만 종료
+      });
+  }, [user, isAdmin]);
+
+
+  /** --------------------------------------
+   * Debounced loadCart — 연타 대비 서버 요청 줄이기
+   * -------------------------------------- */
+  const debouncedLoadCart = useMemo(() => debounce(loadCart, 250), [loadCart]);
+
+  /** --------------------------------------
+   * Add to Cart
+   * - 서버 요청 후 debouncedLoadCart만 호출
+   * -------------------------------------- */
+  function addToCart(productId: number, optionId: number | null, quantity: number) {
+    if (isAdmin || !user) return;
+>>>>>>> main
 
     setCart((prevCart) => {
       const index = prevCart.findIndex(
@@ -120,6 +178,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateQuantity = (cartId: number, quantity: number) => {
     if (!user || isAdmin) return;
     axios
+<<<<<<< HEAD
       .put(`${API_URL}/api/cart/quantity`, { cartId, quantity })
       .then(() => loadCart())
       .catch((err) => console.error("수량 변경 실패:", err));
@@ -132,14 +191,75 @@ export function CartProvider({ children }: { children: ReactNode }) {
       .then(() => loadCart())
       .catch((err) => console.error("옵션 변경 실패:", err));
   };
+=======
+      .post(`${API_URL}/api/cart`, { productId, optionId, quantity })
+      .then(() => debouncedLoadCart())
+      .catch((err) => console.error("장바구니 담기 실패:", err));
+  }
+
+  /** --------------------------------------
+   * Update Quantity (optimis) UI + debounce)
+   * -------------------------------------- */
+  function updateQuantity(cartId: number, quantity: number) {
+    if (isAdmin || !user) return;
+
+    // UI 먼저 수정
+    setCart((prev) =>
+      prev.map((item) => (item.cartId === cartId ? { ...item, quantity } : item))
+    );
+
+    // 서버 요청은 디바운스 적용
+    axios
+      .put(`${API_URL}/api/cart/quantity`, { cartId, quantity })
+      .then(() => debouncedLoadCart());
+  }
+
+  /** --------------------------------------
+   * Change Option (Optimistic UI + debounce)
+   * -------------------------------------- */
+  function changeOption(cartId: number, newOptionId: number) {
+    if (isAdmin || !user) return;
+
+    // // Optimistic UI 업데이트
+    // setCart((prev) =>
+    //   prev.map((item) => {
+    //     if (item.cartId !== cartId) return item;
+
+    //     return {
+    //       ...item,
+    //       option: item.option
+    //         ? { ...item.option, optionId: newOptionId }
+    //         : { optionId: newOptionId },
+    //     };
+    //   })
+    // );
+
+    // 서버 요청 (디바운스 적용)
+    axios
+      .put(`${API_URL}/api/cart/option`, { cartId, newOptionId })
+      .then(() => debouncedLoadCart());
+  }
+
+
+  /** --------------------------------------
+   * Delete Item
+   * -------------------------------------- */
+  function deleteItem(cartId: number) {
+    if (isAdmin || !user) return;
+>>>>>>> main
 
   const deleteItem = (cartId: number) => {
     if (!user || isAdmin) return;
     axios
       .delete(`${API_URL}/api/cart/${cartId}`)
+<<<<<<< HEAD
       .then(() => loadCart())
       .catch((err) => console.error("아이템 삭제 실패:", err));
   };
+=======
+      .then(() => debouncedLoadCart());
+  }
+>>>>>>> main
 
   const clearCart = () => {
     setCart([]);
@@ -149,18 +269,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+<<<<<<< HEAD
+=======
+  /** --------------------------------------
+   * 로그인 상태 변화 감지하여 장바구니 로딩
+   * -------------------------------------- */
+>>>>>>> main
   useEffect(() => {
-    if (!user || !user.id || isAdmin) {
+    if (!user || isAdmin) {
       setCart([]);
       localStorage.removeItem("cart");
       return;
     }
     loadCart();
-  }, [user?.id, isAdmin]);
+  }, [user, isAdmin, loadCart]);
 
   return (
     <CartContext.Provider
+<<<<<<< HEAD
       value={{ cart, loadCart, addToCart, updateQuantity, changeOption, deleteItem, clearCart }}
+=======
+      value={{
+        cart,
+        initialLoading,  
+        loadCart,
+        addToCart,
+        updateQuantity,
+        changeOption,
+        deleteItem,
+        clearCart,
+      }}
+>>>>>>> main
     >
       {children}
     </CartContext.Provider>
