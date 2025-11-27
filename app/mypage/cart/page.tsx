@@ -146,7 +146,7 @@ export default function CartPage() {
             </div>
 
             <button
-              onClick={() => router.push("/checkout")}
+              onClick={() => router.push("/order/checkout")}
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold transition cursor-pointer"
             >
               {totalPrice.toLocaleString()}원 결제하기
