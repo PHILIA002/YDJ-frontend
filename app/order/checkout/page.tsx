@@ -108,7 +108,7 @@ export default function CheckoutPage() {
       items: itemsToShow,
       address: addresses.find(a => a.id === selectedAddress),
       totalPrice,
-      orderDate: new Date().toLocaleString(), // 주문 날짜
+      orderDate: new Date().toLocaleString(),
     };
 
     setLoading(true);
@@ -143,21 +143,24 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
+
         {/* 배송지 */}
         <div className="bg-white rounded-2xl shadow p-6 space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">배송지</h2>
+          <h2 className="text-xl font-semibold text-black">배송지</h2>
 
           {addresses.length === 0 && <p className="text-sm text-gray-500">등록된 배송지가 없습니다.</p>}
 
           {addresses.map(addr => (
             <label
               key={addr.id}
-              className={`flex justify-between items-center p-4 border rounded-lg cursor-pointer hover:ring-2 ${selectedAddress === addr.id ? "ring-blue-500 border-blue-300" : "border-gray-200"}`}
+              className={`flex justify-between items-center p-4 border rounded-xl cursor-pointer transition-all hover:ring-2 ${
+                selectedAddress === addr.id ? "ring-black border-black" : "border-gray-200"
+              }`}
             >
               <div className="space-y-1">
-                <p className="font-medium">{addr.name} {addr.isDefault && <span className="text-sm text-gray-500">(기본)</span>}</p>
+                <p className="font-medium text-black">{addr.name} {addr.isDefault && <span className="text-sm text-gray-500">(기본)</span>}</p>
                 <p className="text-gray-600 text-sm">{addr.address} {addr.detail}</p>
                 <p className="text-gray-600 text-sm">{addr.phone}</p>
               </div>
@@ -165,24 +168,24 @@ export default function CheckoutPage() {
                 type="radio"
                 checked={selectedAddress === addr.id}
                 onChange={() => setSelectedAddress(addr.id)}
-                className="form-radio h-5 w-5 text-blue-500"
+                className="form-radio h-5 w-5 text-black"
               />
             </label>
           ))}
 
           <button
             onClick={() => setShowNewAddress(!showNewAddress)}
-            className="text-blue-600 hover:underline mt-2 text-sm cursor-pointer"
+            className="text-black hover:underline mt-2 text-sm cursor-pointer"
           >
             {showNewAddress ? "입력 취소" : "배송지 직접 입력"}
           </button>
 
           {showNewAddress && (
-            <div className="mt-3 bg-gray-50 p-4 border border-gray-200 rounded-lg space-y-3">
-              <input type="text" placeholder="이름" value={newAddress.name} onChange={e => setNewAddress({ ...newAddress, name: e.target.value })} className="w-full border rounded px-3 py-2" />
-              <input type="text" placeholder="전화번호" value={newAddress.phone} onChange={e => setNewAddress({ ...newAddress, phone: e.target.value })} className="w-full border rounded px-3 py-2" />
-              <input type="text" placeholder="주소" value={newAddress.address} onChange={e => setNewAddress({ ...newAddress, address: e.target.value })} className="w-full border rounded px-3 py-2" />
-              <input type="text" placeholder="상세주소" value={newAddress.detail} onChange={e => setNewAddress({ ...newAddress, detail: e.target.value })} className="w-full border rounded px-3 py-2" />
+            <div className="mt-3 bg-gray-50 p-4 border border-gray-200 rounded-xl space-y-3">
+              <input type="text" placeholder="이름" value={newAddress.name} onChange={e => setNewAddress({ ...newAddress, name: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+              <input type="text" placeholder="전화번호" value={newAddress.phone} onChange={e => setNewAddress({ ...newAddress, phone: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+              <input type="text" placeholder="주소" value={newAddress.address} onChange={e => setNewAddress({ ...newAddress, address: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+              <input type="text" placeholder="상세주소" value={newAddress.detail} onChange={e => setNewAddress({ ...newAddress, detail: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
               <button
                 onClick={() => {
                   if (!newAddress.name || !newAddress.phone || !newAddress.address) {
@@ -198,7 +201,7 @@ export default function CheckoutPage() {
                   setShowNewAddress(false);
                   setNewAddress({ name: "", phone: "", address: "", detail: "" });
                 }}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold"
+                className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-900 font-semibold transition"
               >
                 배송지 추가
               </button>
@@ -208,26 +211,25 @@ export default function CheckoutPage() {
 
         {/* 주문 상품 */}
         <div className="bg-white rounded-2xl shadow p-6 space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">주문 상품</h2>
+          <h2 className="text-xl font-semibold text-black">주문 상품</h2>
           {itemsToShow.map(item =>
             item.options.map(opt => (
               <div
                 key={`${item.productId}-${opt.optionId}`}
-                className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg shadow-sm"
+                className="flex items-center gap-4 bg-gray-50 p-3 rounded-xl shadow-sm"
               >
                 <img
                   src={item.mainImg || "/images/default_main.png"}
                   className="w-20 h-20 object-contain rounded border"
                 />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-800">{item.productName}</p>
+                  <p className="font-medium text-black">{item.productName}</p>
                   <p className="text-gray-500 text-sm">{opt.value}</p>
                   <p className="text-gray-500 text-sm">수량: {opt.count}</p>
                 </div>
-                <div className="text-right font-semibold text-gray-800">
+                <div className="text-right font-semibold text-black">
                   {(item.sellPrice * opt.count).toLocaleString()}원
                 </div>
-                {/* 삭제 버튼 */}
                 {cart.some(c => c.productId === item.productId) && (
                   <button
                     onClick={() => {
@@ -238,7 +240,7 @@ export default function CheckoutPage() {
                       );
                       if (cartItem) deleteItem(cartItem.cartId);
                     }}
-                    className="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm cursor-pointer"
+                    className="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm cursor-pointer transition"
                   >
                     삭제
                   </button>
@@ -250,16 +252,23 @@ export default function CheckoutPage() {
 
         {/* 결제 금액 */}
         <div className="bg-white rounded-2xl shadow p-6 flex justify-between items-center">
-          <span className="text-gray-800 font-medium text-lg">총 결제 금액</span>
+          <span className="text-black font-medium text-lg">총 결제 금액</span>
           <span className="text-red-600 font-bold text-xl">{totalPrice.toLocaleString()}원</span>
         </div>
 
         {/* 결제 버튼 */}
         <div className="text-center">
-          <button onClick={handleOrder} disabled={loading} className={`w-full py-3 rounded-lg font-semibold text-white cursor-pointer ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}>
+          <button
+            onClick={handleOrder}
+            disabled={loading}
+            className={`w-full py-3 rounded-xl font-semibold text-white cursor-pointer transition ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-900"
+            }`}
+          >
             {loading ? "결제 진행중..." : `${totalPrice.toLocaleString()}원 결제하기`}
           </button>
         </div>
+
       </div>
     </div>
   );

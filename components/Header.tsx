@@ -78,25 +78,25 @@ export default function Header() {
           {user ? (
             <>
               {user.role?.trim().toUpperCase() === "ADMIN" && (
-                <Link href="/admin" className="hover:text-gray-300">
+                <Link href="/admin" className="hover:text-gray-400">
                   상품 관리
                 </Link>
               )}
 
-              <Link href="/mypage" className="hover:text-gray-300">
+              <Link href="/mypage" className="hover:text-gray-400">
                 마이페이지
               </Link>
 
-              <button onClick={handleLogout} className="hover:text-gray-300 cursor-pointer">
+              <button onClick={handleLogout} className="hover:text-gray-400 cursor-pointer">
                 로그아웃
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="hover:text-gray-300">
+              <Link href="/login" className="hover:text-gray-400">
                 로그인
               </Link>
-              <Link href="/signup" className="hover:text-gray-300">
+              <Link href="/join" className="hover:text-gray-400">
                 회원가입
               </Link>
             </>

@@ -235,7 +235,7 @@ export default function MyInfoPage() {
                         onClick={() => setDefaultAddress(a.id)}
                         className="text-sm text-blue-600 hover:underline cursor-pointer"
                       >
-                        기본 설정
+                        기본으로 설정
                       </button>
                     </>
                   )}

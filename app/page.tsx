@@ -27,13 +27,11 @@ export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 카테고리 상태
   const [mainCategories, setMainCategories] = useState<MainCategory[]>([]);
   const [categoryTree, setCategoryTree] = useState<any>(null);
 
   const [selectedMain, setSelectedMain] = useState<string | null>(null);
 
-  // 페이징
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
 
@@ -46,13 +44,13 @@ export default function Page() {
   const truncate = (text: string, max = 15) =>
     text.length > max ? text.slice(0, max) + "..." : text;
 
-  // 1) 인트로 확인
+  // Intro check
   useEffect(() => {
     const seen = sessionStorage.getItem("introSeen");
     if (seen !== "true") window.location.href = "/intro";
   }, []);
 
-  // 2) 대분류만 불러오기
+  // Main categories
   useEffect(() => {
     fetch(`${API_URL}/api/categories/main`)
       .then((res) => res.json())
@@ -60,7 +58,7 @@ export default function Page() {
       .catch(console.error);
   }, []);
 
-  // 3) 전체 트리 불러오기
+  // Category tree
   useEffect(() => {
     fetch(`${API_URL}/api/categories/tree`)
       .then((res) => res.json())
@@ -68,7 +66,7 @@ export default function Page() {
       .catch(console.error);
   }, []);
 
-  // 4) 전체 상품 불러오기
+  // Products
   useEffect(() => {
     fetch(`${API_URL}/api/products`)
       .then((res) => res.json())
@@ -79,28 +77,31 @@ export default function Page() {
       .catch(() => setLoading(false));
   }, []);
 
-  // 5) 대분류 선택하여 필터링
+  // Filtering by main category
   const filteredProducts =
     selectedMain && categoryTree
       ? (() => {
-          const midList = categoryTree[selectedMain].children;
+        const midList = categoryTree[selectedMain].children;
 
-          // mid → leaf 목록 전체 수집
-          const leafCodes = Object.values(midList).flatMap(
-            (mid: any) => Object.keys(mid.children)
-          );
+        // leaf 코드 전체 수집
+        const leafCodes = Object.values(midList).flatMap(
+          (mid: any) => Object.keys(mid.children)
+        );
 
-          return products.filter((p) => leafCodes.includes(p.categoryCode));
-        })()
+        return products.filter((p) =>
+          leafCodes.includes(p.categoryCode)
+        );
+      })()
       : products;
 
-  // 6) 페이징 계산
   const totalPages = Math.ceil(filteredProducts.length / pageSize);
   const startIdx = (currentPage - 1) * pageSize;
   const currentProducts = filteredProducts.slice(startIdx, startIdx + pageSize);
 
   return (
     <div className="w-full overflow-x-hidden">
+
+      {/* ▣ 1. 배너 */}
       <Swiper
         modules={[Autoplay]}
         loop
@@ -109,38 +110,30 @@ export default function Page() {
       >
         {bannerImages.map((src, idx) => (
           <SwiperSlide key={idx}>
-            <img
-              src={src}
-              alt={`banner-${idx}`}
-              className="w-full h-full object-cover"
-            />
+            <img src={src} alt="banner" className="w-full object-cover" />
           </SwiperSlide>
         ))}
       </Swiper>
 
+      {/* ▣ 2. 카테고리 바 */}
+      <div className="w-full border-b border-gray-200 bg-white sticky top-0 z-20">
+        <div className="max-w-5xl mx-auto flex gap-6 px-4 py-3 overflow-x-auto whitespace-nowrap">
 
-      {/* 상품 목록 */}
-      <div className="w-full max-w-6xl mx-auto my-12 px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 text-center">
-          상품 목록
-        </h1>
-
-        {/* 대분류 메뉴 */}
-        <div className="flex gap-4 justify-center mb-8">
+          {/* 전체보기 */}
           <button
             onClick={() => {
               setSelectedMain(null);
               setCurrentPage(1);
             }}
-            className={`px-4 py-2 rounded-full border transition cursor-pointer ${
-              !selectedMain
-                ? "bg-black text-white border-black"
-                : "hover:bg-gray-100"
-            }`}
+            className={`pb-1 text-sm cursor-pointer ${!selectedMain
+                ? "text-black font-semibold border-b-2 border-black"
+                : "text-gray-500 hover:text-gray-800"
+              }`}
           >
             전체보기
           </button>
 
+          {/* 대분류 */}
           {mainCategories.map((cat) => (
             <button
               key={cat.code}
@@ -148,18 +141,32 @@ export default function Page() {
                 setSelectedMain(cat.code);
                 setCurrentPage(1);
               }}
-              className={`px-4 py-2 rounded-full border transition cursor-pointer ${
-                selectedMain === cat.code
-                  ? "bg-black text-white border-black"
-                  : "hover:bg-gray-100"
-              }`}
+              className={`pb-1 text-sm cursor-pointer ${selectedMain === cat.code
+                  ? "text-black font-semibold border-b-2 border-black"
+                  : "text-gray-500 hover:text-gray-800"
+                }`}
             >
               {cat.title}
             </button>
           ))}
         </div>
+      </div>
 
-        {/* 상품 grid */}
+      {/* ▣ 3. 상품 목록 */}
+      <div className="w-full max-w-6xl mx-auto my-12 px-4">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900">
+            {selectedMain
+              ? mainCategories.find((c) => c.code === selectedMain)?.title
+              : "전체 상품"}
+          </h2>
+
+          <p className="text-gray-500 text-sm mt-1">
+            총 {filteredProducts.length}개 상품
+          </p>
+        </div>
+
+        {/* 로딩 */}
         {loading || !categoryTree ? (
           <div className="w-full flex flex-col items-center justify-center py-10">
             <p className="text-gray-700 mb-3">상품 불러오는 중...</p>
@@ -198,18 +205,16 @@ export default function Page() {
                 </p>
 
                 <p className="text-black font-bold mt-1 text-lg">
-                  {p.consumerPrice &&
-                    p.sellPrice &&
-                    p.consumerPrice > p.sellPrice && (
-                      <span className="text-red-500 px-2 font-bold">
-                        {Math.round(
-                          ((p.consumerPrice - p.sellPrice) /
-                            p.consumerPrice) *
-                            100
-                        )}
-                        %
-                      </span>
-                    )}
+                  {p.consumerPrice > p.sellPrice && (
+                    <span className="text-red-500 px-2 font-bold">
+                      {Math.round(
+                        ((p.consumerPrice - p.sellPrice) /
+                          p.consumerPrice) *
+                        100
+                      )}
+                      %
+                    </span>
+                  )}
                   {p.sellPrice.toLocaleString()}원
                 </p>
               </Link>
@@ -217,7 +222,7 @@ export default function Page() {
           </div>
         )}
 
-        {/* 페이징 */}
+        {/* ▣ 4. 페이징 */}
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -227,21 +232,18 @@ export default function Page() {
             <ChevronLeft />
           </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-            (page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 border rounded transition cursor-pointer ${
-                  currentPage === page
-                    ? "bg-black text-white border-black"
-                    : "hover:bg-gray-100"
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-1 border rounded transition cursor-pointer ${currentPage === page
+                  ? "bg-black text-white border-black"
+                  : "hover:bg-gray-100"
                 }`}
-              >
-                {page}
-              </button>
-            )
-          )}
+            >
+              {page}
+            </button>
+          ))}
 
           <button
             onClick={() =>
@@ -253,6 +255,7 @@ export default function Page() {
             <ChevronRight />
           </button>
         </div>
+
       </div>
     </div>
   );
