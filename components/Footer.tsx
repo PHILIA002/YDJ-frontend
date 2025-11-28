@@ -17,7 +17,7 @@ export default function Footer() {
           <ul className="text-gray-400 text-sm space-y-1">
             <li><Link href="/" className="hover:text-white transition">홈</Link></li>
             <li><Link href="/mypage" className="hover:text-white transition">마이페이지</Link></li>
-            <li><Link href="/cart" className="hover:text-white transition">장바구니</Link></li>
+            <li><Link href="mypage/cart" className="hover:text-white transition">장바구니</Link></li>
           </ul>
         </div>
 
