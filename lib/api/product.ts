@@ -63,7 +63,7 @@ export async function fetchProductDetail(id: number) {
 export async function toggleLike(productId: number) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  const res = await fetch(`${API_URL}/api/products/${productId}/like`, {
+  const res = await fetch(`${API_URL}/api/like/toggle/${productId}`, {
     method: "POST",
     credentials: "include",
   });

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { toggleLike } from "@/lib/api/product";
 import { SelectedOption, Option, Product } from "@/types/product";
 import type { User } from "@/context/UserContext";
+import axios from "axios";
 
 /**
  * 상품 상세에서 필요한 모든 비즈니스 로직을 담당하는 커스텀 훅
@@ -97,43 +98,25 @@ export function useProductInfoLogic(
 
     // 옵션 상품인데 옵션 선택 안했을 경우
     if (product.isOption && selectedOptions.length === 0) {
-
       return alert("옵션을 선택해주세요!");
     }
 
-    // 옵션 상품
-    if (product.isOption) {
-      for (const opt of selectedOptions) {
-        await addToCart(
-          {
-            productId: product.productId,
-            productName: product.productName,
-            sellPrice: product.sellPrice,
-            stock: product.stock,
-            mainImg: product.mainImg,
-          },
-          opt.optionId,
-          opt.count
-        );
+    try {
+      if (product.isOption) {
+        for (const opt of selectedOptions) {
+          // CartContext의 addToCart 호출
+          await addToCart(product.productId, opt.optionId, opt.count);
+        }
+      } else {
+        await addToCart(product.productId, null, 1);
       }
-    // 옵션이 없는 단일 상품
-    } else {
-      await addToCart(
-        {
-          productId: product.productId,
-          productName: product.productName,
-          sellPrice: product.sellPrice,
-          stock: product.stock,
-          mainImg: product.mainImg,
-        },
-        null,
-        1
-      );
-    }
 
-    // 장바구니 이동 여부 확인
-    if (window.confirm("장바구니에 담았습니다.\n장바구니 페이지로 이동할까요?")) {
-      router.push("/mypage/cart");
+      if (window.confirm("장바구니에 담았습니다.\n장바구니 페이지로 이동할까요?")) {
+        router.push("/mypage/cart");
+      }
+    } catch (err) {
+      console.error("장바구니 추가 실패:", err);
+      alert("장바구니 추가 실패");
     }
   };
 
