@@ -59,8 +59,14 @@ export function useProductInfoLogic(
       setLiked(data.liked);      // UI 반영
       setLikeCount(data.likes);  // 숫자 반영
 
-      // 프론트 전체에서 찜 목록 동기화하려면:
-      toggleWishlist(product.productId);
+      // 찜 목록 동기화는 서버 응답 기반으로 직접 업데이트
+      if (data.liked) {
+        // 찜 추가
+        toggleWishlist?.(product.productId, true);
+      } else {
+        // 찜 제거
+        toggleWishlist?.(product.productId, false);
+      }
 
     } catch (err) {
       console.error("좋아요 실패:", err);
@@ -189,10 +195,6 @@ export function useProductInfoLogic(
     handleQuantityChange,  // 수량 변경 함수 추가
 
     // 좋아요 관련
-    // isLiked,
-    // likesCount,
-    // likeLoading,
-    // handleLike,
     liked,
     likeCount,
     likeLoading,

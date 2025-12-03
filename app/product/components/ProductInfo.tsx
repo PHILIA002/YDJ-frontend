@@ -23,7 +23,6 @@ export default function ProductInfo({ product }: { product: Product }) {
   const router = useRouter();
   const { user } = useUser();
   const { addToCart } = useCart();
-  const { toggleWishlist } = useWishlist();
 
   const {
     selectedOptions,
@@ -38,7 +37,7 @@ export default function ProductInfo({ product }: { product: Product }) {
     handleLike,
     handleAddToCart,
     handleBuyNow,
-  } = useProductInfoLogic(product, user, addToCart, router, toggleWishlist);
+  } = useProductInfoLogic(product, user, addToCart, router);
 
   // 색상 옵션 여부
   const hasColorOptions = product.options?.some(opt => !!opt.colorCode);
@@ -46,7 +45,10 @@ export default function ProductInfo({ product }: { product: Product }) {
   return (
     <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
 
-      {/* 카테고리 */}
+      {/* ----------------------------------------------------
+          카테고리 경로 표시
+          ex) 남성의류 > 상의 > 후드티
+      ---------------------------------------------------- */}
       {product.categoryPath && (
         <div className="text-sm text-gray-500 mb-2 flex items-center gap-2">
           {product.categoryPath.split(">").map((cat, idx, arr) => (
