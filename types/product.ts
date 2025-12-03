@@ -10,8 +10,8 @@
 export interface Option {
   optionId: number;
   optionValue: string;
-  stock: number;
-  colorCode: string;
+  stock?: number;
+  colorCode?: string;
 }
 
 /**
