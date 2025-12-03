@@ -23,7 +23,6 @@ export default function ProductInfo({ product }: { product: Product }) {
   const router = useRouter();
   const { user } = useUser();
   const { addToCart } = useCart();
-  const { toggleWishlist } = useWishlist();
 
   // 상품 상세에 필요한 로직을 모두 커스텀 훅에서 가져옴
   const {
@@ -33,33 +32,16 @@ export default function ProductInfo({ product }: { product: Product }) {
     setDropdownOpen,
     dropdownRef,
     handleSelectOption,
-    // isLiked,
-    // likesCount,
-    // likeLoading,
     liked,
     likeCount,
     likeLoading,
     handleLike,
     handleAddToCart,
     handleBuyNow,
-  } = useProductInfoLogic(product, user, addToCart, router, toggleWishlist);
+  } = useProductInfoLogic(product, user, addToCart, router);
 
   return (
     <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
-
-      {/* 카테고리 */}
-      {/* {product.categoryPath && (
-        <div className="text-sm text-gray-500 mb-2 flex items-center gap-2">
-          {product.categoryPath.split(">").map((cat, idx) => (
-            <span key={idx} className="flex items-center gap-2">
-              <span className="text-gray-600">{cat.trim()}</span>
-              {idx < product.categoryPath.split(">").length - 1 && (
-                <span className="text-gray-400">/</span>
-              )}
-            </span>
-          ))}
-        </div>
-      )} */}
 
       {/* ----------------------------------------------------
           카테고리 경로 표시
