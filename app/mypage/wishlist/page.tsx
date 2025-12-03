@@ -14,11 +14,11 @@ export default function WishlistPage() {
   // 정렬 적용
   useEffect(() => {
     if (sortLatest) {
-      setSortedList([...likedProducts].reverse()); // 최신순
+      setSortedList([...likedProducts].reverse());
     } else {
-      setSortedList([...likedProducts]); // 등록순
+      setSortedList([...likedProducts]);
     }
-  }, [likedProducts, sortLatest]);
+  }, [likedProducts, sortLatest, productInfos]);
 
   if (loading) {
     return (
