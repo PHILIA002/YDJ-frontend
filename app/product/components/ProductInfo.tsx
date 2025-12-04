@@ -5,7 +5,7 @@ import { useUser } from "@/context/UserContext";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useRouter } from "next/navigation";
-import { Heart, Plus, Minus, X } from "lucide-react";
+import { Heart, Plus, Minus, X, Ban } from "lucide-react";
 
 /**
  * 상품 상세 정보 UI 컴포넌트
@@ -82,7 +82,7 @@ export default function ProductInfo({ product }: { product: Product }) {
         )}
         <p className="text-3xl font-bold text-black">{product.sellPrice?.toLocaleString()}원</p>
         <p className="text-gray-600 text-sm">재고: {product.stock}개</p>
-        
+
         {/* 🔥 옵션이 없고 재고가 0이면 품절 표시 */}
         {!product.isOption && product.stock === 0 && (
           <p className="text-red-500 font-semibold text-base mt-1">
@@ -154,22 +154,37 @@ export default function ProductInfo({ product }: { product: Product }) {
                             sellPrice: opt.sellPrice,
                           })
                         }
-                        className={`p-2 flex justify-between items-center hover:bg-gray-100 cursor-pointer ${isSelected ? "bg-gray-200" : ""
-                          } ${isSoldOut ? "opacity-50 cursor-not-allowed" : ""}`}
+                        className={`
+                          p-3 flex justify-between items-center rounded-lg transition
+                          ${isSoldOut
+                                                  ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-70"
+                                                  : "hover:bg-gray-100 cursor-pointer"}
+                          ${isSelected ? "bg-gray-200" : ""}
+                        `}
                       >
-                        <span>{opt.optionValue}</span>
                         <div className="flex items-center gap-2">
-                          {/* ★ 옵션별 가격 */}
+                          {/* 품절 아이콘 */}
+                          {isSoldOut && (
+                            <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                          )}
+
+                          <span>{opt.optionValue}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-gray-700">
                             {Number(opt.sellPrice).toLocaleString()}원
                           </span>
+
+                          {isSoldOut ? (
+                            <span className="text-gray-500 text-xs font-semibold flex items-center gap-1">
+                              <Ban size={12} />
+                              품절
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-xs">{opt.stock}개</span>
+                          )}
                         </div>
-                        
-                        {isSoldOut ? (
-                          <span className="text-red-500 text-xs font-semibold">품절</span>
-                        ) : (
-                          <span className="text-base font-semibold text-gray-700">{opt.stock}개</span>
-                        )}
                       </li>
                     );
                   })}
