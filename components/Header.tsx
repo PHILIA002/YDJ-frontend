@@ -4,15 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
-import { useCart } from "../context/CartContext";   // 🔥 반드시 추가
-import { Search } from "lucide-react";
+import { useCart } from "../context/CartContext";
+import { Search, Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 import SidebarContent from "./SidebarContent";
 
 export default function Header() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { user, setUser } = useUser();
-  const { loadCart } = useCart();   // 🔥 장바구니 초기화용
+  const { loadCart } = useCart();
   const router = useRouter();
 
   const [keyword, setKeyword] = useState("");
@@ -30,95 +30,93 @@ export default function Header() {
         method: "POST",
         credentials: "include",
       });
-    } catch {}
+    } catch { }
 
-    // 1) 사용자 정보 제거
     setUser(null);
     localStorage.removeItem("user");
-
-    // 2) 장바구니 즉시 초기화
     loadCart();
-
-    // 3) 홈으로 이동
     router.push("/");
   };
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full h-16 bg-gray-900 text-white px-6 shadow-md z-50 flex items-center">
+      <header className="fixed top-0 left-0 w-full bg-gray-900 text-white shadow-md z-50 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto h-16 px-6 flex items-center justify-between gap-6">
+          <div className="flex items-center gap-12 flex-1">
+            {/* 로고 */}
+            <Link href="/" className="flex-shrink-0">
+              <img src="/images/logo.png" alt="Logo" className="h-10 w-auto" />
+            </Link>
 
-        {/* 로고 */}
-        <Link href="/" className="flex-shrink-0">
-          <img src="/images/logo.png" alt="Logo" className="h-10 w-auto" />
-        </Link>
+            {/* 검색창 */}
+            <form onSubmit={handleSearch} className="max-w-sm relative flex-1">
+              <Search
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-        {/* 검색창 */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm">
-          <form onSubmit={handleSearch} className="relative w-full">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black">
-              <Search size={16} />
-            </span>
-            <input
-              type="text"
-              placeholder="Your Daily Journey"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="w-full px-10 py-2 bg-white text-black placeholder-gray-400 rounded-full text-center focus:outline-none"
-            />
-          </form>
-        </div>
+              <input
+                type="text"
+                placeholder="Your Daily Journey"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                className="w-full bg-gray-800 border border-gray-700 rounded-full py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 focus:outline-none"
+              />
+            </form>
+          </div>
 
-        {/* 로그인 / 회원가입 */}
-        <div className="ml-auto flex items-center gap-4 mr-3 text-sm">
-          {user ? (
-            <>
-              {user.role?.trim().toUpperCase() === "ADMIN" && (
-                <Link href="/admin" className="hover:text-gray-300">
-                  상품 관리
+          {/* 오른쪽 메뉴 */}
+          <div className="flex items-center gap-4 text-sm">
+
+            {user ? (
+              <>
+                {/* 관리자 아닐 때만 환영 문구 출력 */}
+                {user.role?.trim().toUpperCase() !== "ADMIN" && (
+                  <span className="text-white whitespace-nowrap overflow-hidden">
+                    <b>{user.name}</b> 님 환영합니다
+                  </span>
+                )}
+
+                {/* 관리자일 때 출력되는 메뉴 */}
+                {user.role?.trim().toUpperCase() === "ADMIN" && (
+                  <Link href="/admin" className="hover:text-gray-300">
+                    상품 관리
+                  </Link>
+                )}
+
+                <Link href="/mypage" className="hover:text-gray-300">
+                  마이페이지
                 </Link>
-              )}
 
-              <Link href="/mypage" className="hover:text-gray-300">
-                마이페이지
-              </Link>
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-gray-300 cursor-pointer"
+                >
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="hover:text-gray-300">
+                  로그인
+                </Link>
+                <Link href="/signup" className="hover:text-gray-300">
+                  회원가입
+                </Link>
+              </>
+            )}
 
-              <button onClick={handleLogout} className="hover:text-gray-300 cursor-pointer">
-                로그아웃
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="hover:text-gray-300">
-                로그인
-              </Link>
-              <Link href="/signup" className="hover:text-gray-300">
-                회원가입
-              </Link>
-            </>
-          )}
+            {/* 모바일 메뉴 버튼 */}
+            <button
+              className="relative w-10 h-10 flex items-center justify-center cursor-pointer z-[999]"
+              onClick={() => setMenuOpen(true)}
+            >
+              <Menu />
+            </button>
+          </div>
         </div>
-
-        {/* 햄버거 버튼 */}
-        <button
-          className="relative w-10 h-10 flex items-center justify-center cursor-pointer z-[999]"
-          onClick={() => setMenuOpen(true)}
-        >
-          <span
-            className={`absolute block w-8 h-1 bg-white rounded transition-all duration-300
-            ${menuOpen ? "rotate-45 translate-y-0" : "-translate-y-2"}`}
-          />
-          <span
-            className={`absolute block w-8 h-1 bg-white rounded transition-opacity duration-300
-            ${menuOpen ? "opacity-0" : "opacity-100"}`}
-          />
-          <span
-            className={`absolute block w-8 h-1 bg-white rounded transition-all duration-300
-            ${menuOpen ? "-rotate-45 translate-y-0" : "translate-y-2"}`}
-          />
-        </button>
       </header>
 
-      {/* 사이드바 */}
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)}>
         <SidebarContent user={user} onClose={() => setMenuOpen(false)} />
       </Sidebar>

@@ -12,6 +12,7 @@ export interface Option {
   optionValue: string;
   stock?: number;
   colorCode?: string;
+  sellPrice: number;
 }
 
 /**
