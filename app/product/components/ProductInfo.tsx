@@ -44,9 +44,8 @@ export default function ProductInfo({ product }: { product: Product }) {
   const hasColorOptions = product.options?.some(opt => !!opt.colorCode);
   console.log(product.options)
 
-   // ⭐ 새 훅 사용
+  // 총 가격 합산
   const finalPrice = useOptionTotalPrice(product, selectedOptions);
-
 
   return (
     <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
@@ -89,7 +88,7 @@ export default function ProductInfo({ product }: { product: Product }) {
         <p className="text-3xl font-bold text-black">{product.sellPrice?.toLocaleString()}원</p>
         <p className="text-gray-600 text-sm">재고: {product.stock}개</p>
 
-        {/* 🔥 옵션이 없고 재고가 0이면 품절 표시 */}
+        {/* 옵션이 없고 재고가 0이면 품절 표시 */}
         {!product.isOption && product.stock === 0 && (
           <p className="text-red-500 font-semibold text-base mt-1">
             품절된 상품입니다
@@ -163,8 +162,8 @@ export default function ProductInfo({ product }: { product: Product }) {
                         className={`
                           p-3 flex justify-between items-center rounded-lg transition
                           ${isSoldOut
-                                                  ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-70"
-                                                  : "hover:bg-gray-100 cursor-pointer"}
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-70"
+                            : "hover:bg-gray-100 cursor-pointer"}
                           ${isSelected ? "bg-gray-200" : ""}
                         `}
                       >
@@ -258,6 +257,11 @@ export default function ProductInfo({ product }: { product: Product }) {
             </button>
           </div>
         ))}
+        {/* 🔥 총 결제 금액 표시 */}
+        <div className="flex justify-between text-lg font-bold text-black">
+          <span>총 결제 금액</span>
+          <span>{finalPrice.toLocaleString()}원</span>
+        </div>
       </div>
 
       {/* 좋아요 + 장바구니 + 구매하기 */}
