@@ -38,7 +38,8 @@ export function useProductDetail(id: number) {
           options: data.options?.map((opt: any) => ({
             optionId: opt.optionId,
             optionValue: opt.optionValue,
-            stock: opt.stock,       // ⭐ 이거 추가
+            stock: opt.stock,
+            sellPrice: opt.sellPrice       
           })),
         };
 

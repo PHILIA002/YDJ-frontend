@@ -1,5 +1,6 @@
 "use client";
 import { useProductInfoLogic } from "@/hooks/useProductInfoLogic";
+import { useOptionTotalPrice } from "@/hooks/useOptionTotalPrice";
 import { Product } from "@/types/product";
 import { useUser } from "@/context/UserContext";
 import { useCart } from "@/context/CartContext";
@@ -42,6 +43,11 @@ export default function ProductInfo({ product }: { product: Product }) {
   // 색상 옵션 여부
   const hasColorOptions = product.options?.some(opt => !!opt.colorCode);
   console.log(product.options)
+
+   // ⭐ 새 훅 사용
+  const finalPrice = useOptionTotalPrice(product, selectedOptions);
+
+
   return (
     <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
 
