@@ -154,7 +154,7 @@ export default function ProductInfo({ product }: { product: Product }) {
                         {isSoldOut ? (
                           <span className="text-red-500 text-xs font-semibold">품절</span>
                         ) : (
-                          <span className="text-gray-400 text-xs">{opt.stock}개</span>
+                          <span className="text-base font-semibold text-gray-700">{opt.stock}개</span>
                         )}
                       </li>
                     );
