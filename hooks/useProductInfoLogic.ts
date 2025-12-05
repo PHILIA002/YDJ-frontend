@@ -100,7 +100,7 @@ export function useProductInfoLogic(
    * - 옵션이 있는 상품인데 옵션 미선택 → 경고
    * - 옵션이 여러 개 선택된 경우 반복해서 addToCart 호출
    */
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (singleCount: number) => {
     if (!user) return router.push("/login");
 
     // 옵션 상품인데 옵션 선택 안했을 경우
@@ -133,7 +133,7 @@ export function useProductInfoLogic(
    * - 구매 페이지에서 사용할 데이터를 sessionStorage에 저장
    * - /order/checkout 페이지로 이동
    */
-  const handleBuyNow = () => {
+  const handleBuyNow = (singleCount: number) => {
     if (!user) return router.push("/login");
     if (product.isOption && selectedOptions.length === 0)
       return alert("옵션을 선택해주세요!");

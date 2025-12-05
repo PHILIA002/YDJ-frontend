@@ -1,10 +1,11 @@
 "use client";
+
+import { useState } from "react";
 import { useProductInfoLogic } from "@/hooks/useProductInfoLogic";
 import { useOptionTotalPrice } from "@/hooks/useOptionTotalPrice";
 import { Product } from "@/types/product";
 import { useUser } from "@/context/UserContext";
 import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
 import { useRouter } from "next/navigation";
 import { Heart, Plus, Minus, X, Ban } from "lucide-react";
 
@@ -34,7 +35,6 @@ export default function ProductInfo({ product }: { product: Product }) {
     handleSelectOption,
     liked,
     likeCount,
-    likeLoading,
     handleLike,
     handleAddToCart,
     handleBuyNow,
@@ -43,8 +43,13 @@ export default function ProductInfo({ product }: { product: Product }) {
   // 색상 옵션 여부
   const hasColorOptions = product.options?.some(opt => !!opt.colorCode);
 
-  // 총 가격 합산
-  const finalPrice = useOptionTotalPrice(product, selectedOptions);
+  // 옵션 없는 상품일 때 수량 관리
+  const [singleCount, setSingleCount] = useState(1);
+
+  // 총 가격 합산 (옵션 없으면 단일 수량 × 가격)
+  const finalPrice = product.isOption
+    ? useOptionTotalPrice(product, selectedOptions)
+    : product.sellPrice * singleCount;
 
   return (
     <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
@@ -75,8 +80,8 @@ export default function ProductInfo({ product }: { product: Product }) {
           <span className="text-red-500 text-lg font-semibold">
             {Math.round(
               ((product.consumerPrice - product.sellPrice) / product.consumerPrice) * 100
-            )}%
-            할인
+            )}
+            % 할인
           </span>
         )}
         {product.consumerPrice && (
@@ -130,8 +135,8 @@ export default function ProductInfo({ product }: { product: Product }) {
               })}
             </div>
           ) : (
-            // 기존 드롭다운
             <>
+              {/* 드롭다운 버튼 */}
               <button
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 className="w-full border border-gray-300 rounded-lg p-2 text-left bg-white hover:ring-2 hover:ring-black transition cursor-pointer"
@@ -182,11 +187,12 @@ export default function ProductInfo({ product }: { product: Product }) {
 
                           {isSoldOut ? (
                             <span className="text-gray-500 text-xs font-semibold flex items-center gap-1">
-                              <Ban size={12} />
-                              품절
+                              <Ban size={12} /> 품절
                             </span>
                           ) : (
-                            <span className="text-gray-400 text-xs">{opt.stock}개</span>
+                            <span className="text-gray-400 text-xs">
+                              {opt.stock}개
+                            </span>
                           )}
                         </div>
                       </li>
@@ -199,77 +205,117 @@ export default function ProductInfo({ product }: { product: Product }) {
         </div>
       )}
 
-      {/* 선택된 옵션 목록 */}
-      <div className="flex flex-col gap-4 mb-6 w-full">
-        {selectedOptions.map(item => (
-          <div
-            key={item.optionId}
-            className="border p-4 rounded-xl shadow flex justify-between items-center w-full bg-white"
-          >
+      {/* 옵션이 없는 단일 상품 수량 조절 */}
+      {!product.isOption && (
+        <div className="flex flex-col gap-4 mb-6 w-full">
+          <div className="border p-4 rounded-xl shadow bg-white flex justify-between items-center">
             <div className="flex-1">
               <p className="font-medium text-black">
-                {item.optionValue}
+                {product.productName}
                 <span className="ml-2 text-gray-600 text-sm">
-                  {Number(item.sellPrice).toLocaleString()}원
+                  {product.sellPrice.toLocaleString()}원
                 </span>
               </p>
 
-              {/* 수량 조절 */}
               <div className="flex items-center gap-3 mt-2">
                 <button
-                  onClick={() =>
-                    setSelectedOptions(prev =>
-                      prev.map(p =>
-                        p.optionId === item.optionId
-                          ? { ...p, count: Math.max(1, p.count - 1) }
-                          : p
-                      )
-                    )
-                  }
-                  className="p-2 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
+                  onClick={() => setSingleCount(prev => Math.max(1, prev - 1))}
+                  className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
                 >
                   <Minus size={16} />
                 </button>
-                <span className="font-semibold text-black">{item.count}</span>
+
+                <span className="font-semibold text-black">{singleCount}</span>
+
                 <button
-                  onClick={() =>
-                    setSelectedOptions(prev =>
-                      prev.map(p =>
-                        p.optionId === item.optionId
-                          ? { ...p, count: p.count + 1 }
-                          : p
-                      )
-                    )
-                  }
-                  className="p-2 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
+                  onClick={() => setSingleCount(prev => prev + 1)}
+                  className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
                 >
                   <Plus size={16} />
                 </button>
               </div>
             </div>
-
-            <button
-              onClick={() => setSelectedOptions(prev => prev.filter(p => p.optionId !== item.optionId))}
-              className="text-red-400 hover:text-red-600 transition cursor-pointer"
-            >
-              <X size={20} />
-            </button>
           </div>
-        ))}
-
-        {/* 총 결제 금액 표시 */}
-        <div className="flex justify-between text-lg font-bold text-black">
-          <span>총 결제 금액</span>
-          <span>{finalPrice.toLocaleString()}원</span>
         </div>
+      )}
+
+      {/* 선택된 옵션 목록 */}
+      {product.isOption && (
+        <div className="flex flex-col gap-4 mb-6 w-full">
+          {selectedOptions.map(item => (
+            <div
+              key={item.optionId}
+              className="border p-4 rounded-xl shadow bg-white flex justify-between items-center"
+            >
+              <div className="flex-1">
+                <p className="font-medium text-black">
+                  {item.optionValue}
+                  <span className="ml-2 text-gray-600 text-sm">
+                    {item.sellPrice.toLocaleString()}원
+                  </span>
+                </p>
+
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    onClick={() =>
+                      setSelectedOptions(prev =>
+                        prev.map(p =>
+                          p.optionId === item.optionId
+                            ? { ...p, count: Math.max(1, p.count - 1) }
+                            : p
+                        )
+                      )
+                    }
+                    className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+                  >
+                    <Minus size={16} />
+                  </button>
+
+                  <span className="font-semibold text-black">{item.count}</span>
+
+                  <button
+                    onClick={() =>
+                      setSelectedOptions(prev =>
+                        prev.map(p =>
+                          p.optionId === item.optionId
+                            ? { ...p, count: p.count + 1 }
+                            : p
+                        )
+                      )
+                    }
+                    className="p-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={() =>
+                  setSelectedOptions(prev => prev.filter(p => p.optionId !== item.optionId))
+                }
+                className="text-red-400 hover:text-red-600 cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ---------------------- 총 결제 금액 ---------------------- */}
+      <div className="flex justify-between text-lg font-bold text-black w-full">
+        <span>총 결제 금액</span>
+        <span>{finalPrice.toLocaleString()}원</span>
       </div>
 
-      {/* 좋아요 + 장바구니 + 구매하기 */}
+      {/* ---------------------- 좋아요 + 버튼 영역 ---------------------- */}
       <div className="flex flex-col md:flex-row items-center gap-4 w-full">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-2 p-2 border rounded-lg transition-all w-full md:w-auto cursor-pointer ${liked ? "bg-rose-50 border-rose-300" : "bg-white border-gray-300"
-            }`}
+          className={`flex items-center gap-2 p-2 border rounded-lg transition-all w-full md:w-auto cursor-pointer
+            ${liked ? "bg-rose-50 border-rose-300" : "bg-white border-gray-300"}
+          `}
         >
           <Heart
             className={`w-7 h-7 ${liked ? "fill-rose-500 stroke-rose-500" : "stroke-gray-400"}`}
@@ -280,15 +326,23 @@ export default function ProductInfo({ product }: { product: Product }) {
         </button>
 
         <button
-          onClick={handleAddToCart}
-          className="flex-1 w-full bg-black text-white py-3 rounded-xl hover:bg-gray-900 transition cursor-pointer"
+          onClick={() =>
+            product.isOption
+              ? handleAddToCart(1)
+              : handleAddToCart(singleCount)
+          }
+          className="flex-1 bg-black text-white py-3 rounded-xl hover:bg-gray-900 cursor-pointer"
         >
           장바구니
         </button>
 
         <button
-          onClick={handleBuyNow}
-          className="flex-1 w-full bg-white text-black py-3 rounded-xl hover:bg-gray-100 transition cursor-pointer border border-gray-300"
+          onClick={() =>
+            product.isOption
+              ? handleBuyNow(1)
+              : handleBuyNow(singleCount)
+          }
+          className="flex-1 bg-white text-black py-3 rounded-xl hover:bg-gray-100 border border-gray-300 cursor-pointer"
         >
           구매하기
         </button>
