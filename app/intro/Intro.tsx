@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-interface IntroProps {
-  onFinish: () => void;
-}
-
-export default function Intro({ onFinish }: IntroProps) {
+export default function Intro() {
   const introLines = ["Your Daily", "Journey"];
   const [mounted, setMounted] = useState(false);
 
@@ -14,7 +10,7 @@ export default function Intro({ onFinish }: IntroProps) {
     const seen = sessionStorage.getItem("introSeen");
 
     if (seen === "true") {
-      onFinish(); // 이미 본 경우 바로 홈 화면
+      window.location.href = "/";
       return;
     }
 
@@ -22,7 +18,7 @@ export default function Intro({ onFinish }: IntroProps) {
 
     const timer = setTimeout(() => {
       sessionStorage.setItem("introSeen", "true");
-      onFinish(); // 3초 후 홈 화면으로
+      window.location.href = "/";
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -30,17 +26,14 @@ export default function Intro({ onFinish }: IntroProps) {
 
   const goHome = () => {
     sessionStorage.setItem("introSeen", "true");
-    onFinish(); // 버튼 클릭 시 홈 화면으로
+    window.location.href = "/";
   };
 
   const renderLine = (line: string, lineIdx: number) => {
     const chars = line.split("");
 
     const delays = mounted
-      ? chars
-          .map((_, i) => i)
-          .sort(() => Math.random() - 0.5)
-          .map((i) => i * 0.1)
+      ? chars.map((_, i) => i).sort(() => Math.random() - 0.5).map((i) => i * 0.1)
       : chars.map(() => 0);
 
     return chars.map((char, idx) => {
