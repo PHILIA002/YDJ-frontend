@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Intro() {
+  const router = useRouter();
   const introLines = ["Your Daily", "Journey"];
   const [mounted, setMounted] = useState(false);
 
@@ -10,7 +12,7 @@ export default function Intro() {
     const seen = sessionStorage.getItem("introSeen");
 
     if (seen === "true") {
-      window.location.href = "/";
+      router.push("/");
       return;
     }
 
@@ -18,7 +20,7 @@ export default function Intro() {
 
     const timer = setTimeout(() => {
       sessionStorage.setItem("introSeen", "true");
-      window.location.href = "/";
+      router.push("/");
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -26,7 +28,7 @@ export default function Intro() {
 
   const goHome = () => {
     sessionStorage.setItem("introSeen", "true");
-    window.location.href = "/";
+    router.push("/");
   };
 
   const renderLine = (line: string, lineIdx: number) => {

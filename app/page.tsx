@@ -101,7 +101,7 @@ export default function HomePage() {
 
   // ▣ 렌더링
   return showIntro ? (
-    <IntroPage onFinish={() => setShowIntro(false)} />
+    <IntroPage />
   ) : (
     <div className="w-full overflow-x-hidden">
 
