@@ -18,11 +18,6 @@ export default function ClientRoot({ children }: { children: ReactNode }) {
     setShowIntro(seen === "true" ? false : true);
   }, []);
 
-  const handleFinishIntro = () => {
-    sessionStorage.setItem("introSeen", "true");
-    setShowIntro(false);
-  };
-
   // 인트로 체크 전에는 아무것도 렌더링 금지
   if (showIntro === null) return null;
 
