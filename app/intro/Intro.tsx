@@ -9,6 +9,8 @@ export default function Intro() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
     const seen = sessionStorage.getItem("introSeen");
 
     if (seen === "true") {
