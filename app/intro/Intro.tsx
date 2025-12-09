@@ -6,49 +6,46 @@ import { useRouter } from "next/navigation";
 export default function Intro() {
   const router = useRouter();
   const introLines = ["Your Daily", "Journey"];
-  const [mounted, setMounted] = useState(false);
-  const [allowRender, setAllowRender] = useState(false);
 
-  // STEP 1: 브라우저에서만 실행되도록 보장
+  // 렌더링 허용 여부 (SSR → CSR 전환 후에만 랜더)
+  const [ready, setReady] = useState(false);
+
+  // 1) 클라이언트 마운트 감지
   useEffect(() => {
-    setMounted(true);
+    setReady(true);
   }, []);
 
-  // STEP 2: mounted 후에 introSeen 체크
+  // 2) introSeen 체크 & 자동 이동
   useEffect(() => {
-    if (!mounted) return;
+    if (!ready) return; // 브라우저에서만 실행
 
     const seen = sessionStorage.getItem("introSeen");
 
-    // 이미 본 경우 즉시 홈으로
     if (seen === "true") {
       router.replace("/");
       return;
     }
 
-    // Intro 보여주기 허용
-    setAllowRender(true);
-
-    // 자동 이동 타이머
     const timer = setTimeout(() => {
       sessionStorage.setItem("introSeen", "true");
       router.replace("/");
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [mounted]);
+  }, [ready, router]);
 
   const goHome = () => {
     sessionStorage.setItem("introSeen", "true");
     router.replace("/");
   };
 
-  if (!allowRender) return null; // Intro 화면이 깜빡이는 문제 방지
+  // ready 되기 전에는 아무것도 렌더하지 않음 → hydration mismatch 방지
+  if (!ready) return null;
 
   const renderLine = (line: string, lineIdx: number) => {
     const chars = line.split("");
 
-    // STEP 3: 랜덤 딜레이 useMemo로 고정 (hydration mismatch 방지)
+    // 랜덤 딜레이를 useMemo로 고정해 Hydration mismatch 방지
     const delays = useMemo(() => {
       return chars
         .map((_, i) => i)
