@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, ReactNode } from "react";
-import IntroPage from "./intro/page";
+import Intro from "./intro/Intro";
 
 export default function ClientRoot({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -27,7 +27,7 @@ export default function ClientRoot({ children }: { children: ReactNode }) {
   if (showIntro === null) return null;
 
   // 인트로 표시
-  if (showIntro) return <IntroPage onFinish={handleFinishIntro} />;
+  if (showIntro) return <Intro onFinish={handleFinishIntro} />;
 
   return (
     <>

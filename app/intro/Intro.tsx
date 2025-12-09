@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function Intro() {
-  const router = useRouter();
+interface IntroProps {
+  onFinish: () => void;
+}
+
+export default function Intro({ onFinish }: IntroProps) {
   const introLines = ["Your Daily", "Journey"];
   const [mounted, setMounted] = useState(false);
-
-  const onFinish = () => {
-    router.push("/"); // 홈으로 이동
-  };
 
   useEffect(() => {
     const seen = sessionStorage.getItem("introSeen");
