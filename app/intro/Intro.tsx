@@ -1,44 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Intro() {
   const router = useRouter();
   const introLines = ["Your Daily", "Journey"];
   const [mounted, setMounted] = useState(false);
+  const [allowRender, setAllowRender] = useState(false);
 
+  // STEP 1: 브라우저에서만 실행되도록 보장
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    
+    setMounted(true);
+  }, []);
+
+  // STEP 2: mounted 후에 introSeen 체크
+  useEffect(() => {
+    if (!mounted) return;
+
     const seen = sessionStorage.getItem("introSeen");
 
+    // 이미 본 경우 즉시 홈으로
     if (seen === "true") {
-      router.push("/");
+      router.replace("/");
       return;
     }
 
-    setMounted(true);
+    // Intro 보여주기 허용
+    setAllowRender(true);
 
+    // 자동 이동 타이머
     const timer = setTimeout(() => {
       sessionStorage.setItem("introSeen", "true");
-      router.push("/");
+      router.replace("/");
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [mounted]);
 
   const goHome = () => {
     sessionStorage.setItem("introSeen", "true");
-    router.push("/");
+    router.replace("/");
   };
+
+  if (!allowRender) return null; // Intro 화면이 깜빡이는 문제 방지
 
   const renderLine = (line: string, lineIdx: number) => {
     const chars = line.split("");
 
-    const delays = mounted
-      ? chars.map((_, i) => i).sort(() => Math.random() - 0.5).map((i) => i * 0.1)
-      : chars.map(() => 0);
+    // STEP 3: 랜덤 딜레이 useMemo로 고정 (hydration mismatch 방지)
+    const delays = useMemo(() => {
+      return chars
+        .map((_, i) => i)
+        .sort(() => Math.random() - 0.5)
+        .map((i) => i * 0.1);
+    }, []);
 
     return chars.map((char, idx) => {
       const delay = delays[idx];
