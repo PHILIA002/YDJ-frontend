@@ -6,18 +6,16 @@ import { useRouter } from "next/navigation";
 export default function Intro() {
   const router = useRouter();
   const introLines = ["Your Daily", "Journey"];
-
-  // 렌더링 허용 여부 (SSR → CSR 전환 후에만 랜더)
   const [ready, setReady] = useState(false);
 
-  // 1) 클라이언트 마운트 감지
+  // 🔥 hydration 안전하게 만들기
   useEffect(() => {
     setReady(true);
   }, []);
 
-  // 2) introSeen 체크 & 자동 이동
+  // 🔥 CSR이 된 후에만 introSeen 체크
   useEffect(() => {
-    if (!ready) return; // 브라우저에서만 실행
+    if (!ready) return;
 
     const seen = sessionStorage.getItem("introSeen");
 
@@ -39,22 +37,24 @@ export default function Intro() {
     router.replace("/");
   };
 
-  // ready 되기 전에는 아무것도 렌더하지 않음 → hydration mismatch 방지
+  // 🔥 line 길이에 맞춰 랜덤 딜레이 2줄 생성
+  const delays = useMemo(() => {
+    return introLines.map((line) =>
+      line
+        .split("")
+        .map((_, i) => i)
+        .sort(() => Math.random() - 0.5)
+        .map((i) => i * 0.1)
+    );
+  }, []);
+
   if (!ready) return null;
 
   const renderLine = (line: string, lineIdx: number) => {
     const chars = line.split("");
 
-    // 랜덤 딜레이를 useMemo로 고정해 Hydration mismatch 방지
-    const delays = useMemo(() => {
-      return chars
-        .map((_, i) => i)
-        .sort(() => Math.random() - 0.5)
-        .map((i) => i * 0.1);
-    }, []);
-
     return chars.map((char, idx) => {
-      const delay = delays[idx];
+      const delay = delays[lineIdx][idx];
 
       if (lineIdx === 1 && char.toLowerCase() === "o") {
         return (
