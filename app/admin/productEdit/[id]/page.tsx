@@ -253,7 +253,7 @@ export default function ProductEditPage() {
       return;
     }
 
-    setLoadingDescription(true); 
+    setLoadingDescription(true);
 
     const imageUrls = [
       product.mainImg,
@@ -309,7 +309,7 @@ export default function ProductEditPage() {
         product.blocks && product.blocks.length > 0
           ? JSON.stringify(product.blocks)
           : product.description, // 기존 설명 유지
-      deleteOptionIds: deletedOptionIds,    
+      deleteOptionIds: deletedOptionIds,
       options: product.isOption
         ? product.options.map((opt) => ({
           ...opt,
@@ -371,7 +371,7 @@ export default function ProductEditPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* -------------------- LEFT: 상품 기본 정보 -------------------- */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 md:p-8">
-            
+
             {/* 대표 이미지 URL */}
             <div className="mb-4">
               <Input
@@ -381,377 +381,383 @@ export default function ProductEditPage() {
                 placeholder="대표 이미지 URL을 입력하세요"
               />
 
-            {/* 대표 이미지 미리보기 */}
-            {product.mainImg && (
-              <div className="mt-2">
-                <img
-                  // src={`${IMAGE_BASE_URL}${product.mainImg}`}
-                  src={`${product.mainImg}`}
-                  alt="대표 이미지 미리보기"
-                  className="w-120px h-240px object-contain"
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="mb-4">
-            {/* 상세 이미지 URL 입력 */}
-            <Input
-              label="상세 이미지 URL 추가"
-              value={subImageUrl}
-              onChange={(e) => setSubImageUrl(e.target.value)}
-              placeholder="상세 이미지 URL을 입력하세요"
-            />
-            <Button
-              className="mt-2"
-              onClick={handleAddSubImage}  // 이미지를 추가하는 함수
-              disabled={!subImageUrl}  // 입력된 URL이 없으면 버튼 비활성화
-            >
-              추가
-            </Button>
-          </div>
-
-          {/* 추가된 상세 이미지 목록 */}
-          <div className="mb-4">
-            {product.subImages && product.subImages.length > 0 && (
-              <div>
-                <p className="font-semibold">상세 이미지 목록</p>
-                <div className="space-y-2">
-                  {product.subImages.map((img, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <img
-                        // src={`${IMAGE_BASE_URL}${img.imageUrl}`} 
-                        src={`${img.imageUrl}`}  // 미리보기
-                        alt={`sub-image-${idx}`}
-                        className="w-20 h-20 object-cover"
-                      />
-                      <Button
-                        className="text-red-500"
-                        onClick={() => removeSubImage(idx)}  // 이미지 삭제 함수
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  ))}
+              {/* 대표 이미지 미리보기 */}
+              {product.mainImg && (
+                <div className="mt-2">
+                  <img
+                    src={`${product.mainImg}`}
+                    alt="대표 이미지 미리보기"
+                    className="w-40 h-60 object-contain border rounded-md bg-gray-50"
+                  />
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* 우측: 상품 정보 */}
-          <div className="flex flex-col gap-6 md:w-1/2">
-            <Input
-              label="상품명"
-              value={product.productName}
-              onChange={(e) => handleChange("productName", e.target.value)}
-              placeholder="상품명을 입력하세요"
-            />
+            <div className="mb-4">
+              {/* 상세 이미지 URL 입력 */}
+              <Input
+                label="상세 이미지 URL 추가"
+                value={subImageUrl}
+                onChange={(e) => setSubImageUrl(e.target.value)}
+                placeholder="상세 이미지 URL을 입력하세요"
+              />
+              <Button
+                className="mt-2"
+                onClick={handleAddSubImage}  // 이미지를 추가하는 함수
+                disabled={!subImageUrl}  // 입력된 URL이 없으면 버튼 비활성화
+              >
+                추가
+              </Button>
+            </div>
 
-            {/* 카테고리 선택 */}
-            {categoryTree && (
-              <div className="flex flex-col gap-2">
-                <p className="font-semibold">카테고리 선택</p>
+            {/* 추가된 상세 이미지 목록 */}
+            <div className="mb-4">
+              {product.subImages && product.subImages.length > 0 && (
+                <div>
+                  <p className="font-semibold">상세 이미지 목록</p>
+                  <div className="flex gap-3 overflow-x-auto py-2">
+                    {product.subImages.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="flex-shrink-0 flex flex-col items-center gap-2"
+                      >
+                        <img
+                          src={img.imageUrl}
+                          alt={`sub-image-${idx}`}
+                          className="w-32 h-32 object-cover rounded-md border"
+                        />
+                        <Button
+                          className="text-red-500"
+                          onClick={() => removeSubImage(idx)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
-                {/* 대분류 */}
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(categoryTree).map(([bigCode, bigNode]) => (
-                    <button
-                      key={bigCode}
-                      className={`px-3 py-1 rounded-full border text-sm transition cursor-pointer ${selectedBig === bigCode
+            {/* 우측: 상품 정보 */}
+            <div className="flex flex-col gap-6 w-full md:max-w-3xl">
+              <Input
+                label="상품명"
+                value={product.productName}
+                onChange={(e) => handleChange("productName", e.target.value)}
+                placeholder="상품명을 입력하세요"
+              />
+
+              {/* 카테고리 선택 */}
+              {categoryTree && (
+                <div className="flex flex-col gap-2">
+                  <p className="font-semibold">카테고리 선택</p>
+
+                  {/* 대분류 */}
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(categoryTree).map(([bigCode, bigNode]) => (
+                      <button
+                        key={bigCode}
+                        className={`px-3 py-1 rounded-full border text-sm transition cursor-pointer ${selectedBig === bigCode
                           ? "bg-black text-white border-black"
                           : "bg-gray-100 border-gray-200 hover:bg-gray-200"
-                        }`}
-                      onClick={() => {
-                        setSelectedBig(bigCode);
-                        setSelectedMid("");
-                        handleChange("categoryCode", "");
-                      }}
-                    >
-                      {bigNode.title}
-                    </button>
-                  ))}
-                </div>
-
-                {/* 중분류 */}
-                {selectedBig && (
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {Object.entries(categoryTree[selectedBig].children).map(
-                      ([midCode, midNode]) => (
-                        <button
-                          key={midCode}
-                          className={`px-3 py-1 rounded-full border text-sm transition cursor-pointer ${selectedMid === midCode
-                              ? "bg-black text-white border-black"
-                              : "bg-gray-100 border-gray-200 hover:bg-gray-200"
-                            }`}
-                          onClick={() => {
-                            setSelectedMid(midCode);
-                            handleChange("categoryCode", "");
-                          }}
-                        >
-                          {midNode.title}
-                        </button>
-                      )
-                    )}
-                  </div>
-                )}
-
-                {/* 소분류 */}
-                {selectedBig && selectedMid && (
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {Object.entries(
-                      categoryTree[selectedBig].children[selectedMid].children
-                    ).map(([leafCode, leafName]) => (
-                      <button
-                        key={leafCode}
-                        className={`px-3 py-1 rounded-full border text-sm transition cursor-pointer ${product.categoryCode === leafCode
-                            ? "bg-black text-white border-black"
-                            : "bg-gray-100 border-gray-200 hover:bg-gray-200"
                           }`}
-                        onClick={() => handleChange("categoryCode", leafCode)}
+                        onClick={() => {
+                          setSelectedBig(bigCode);
+                          setSelectedMid("");
+                          handleChange("categoryCode", "");
+                        }}
                       >
-                        {leafName}
+                        {bigNode.title}
                       </button>
                     ))}
                   </div>
-                )}
 
-                {product.categoryCode && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    선택된 카테고리: {product.categoryCode}
-                  </p>
-                )}
-              </div>
-            )}
-    
-            {/* 가격 / 재고 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Input
-                label="소비자가"
-                type="number"
-                value={product.consumerPrice ?? 0}
-                onChange={(e) =>
-                  handleChange("consumerPrice", Number(e.target.value))
-                }
-              />
-              <Input
-                label="기본 판매가"
-                type="number"
-                value={product.sellPrice}
-                onChange={(e) =>
-                  handleChange("sellPrice", Number(e.target.value))
-                }
-              />
-              {!product.isOption && (
+                  {/* 중분류 */}
+                  {selectedBig && (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {Object.entries(categoryTree[selectedBig].children).map(
+                        ([midCode, midNode]) => (
+                          <button
+                            key={midCode}
+                            className={`px-3 py-1 rounded-full border text-sm transition cursor-pointer ${selectedMid === midCode
+                              ? "bg-black text-white border-black"
+                              : "bg-gray-100 border-gray-200 hover:bg-gray-200"
+                              }`}
+                            onClick={() => {
+                              setSelectedMid(midCode);
+                              handleChange("categoryCode", "");
+                            }}
+                          >
+                            {midNode.title}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  )}
+
+                  {/* 소분류 */}
+                  {selectedBig && selectedMid && (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {Object.entries(
+                        categoryTree[selectedBig].children[selectedMid].children
+                      ).map(([leafCode, leafName]) => (
+                        <button
+                          key={leafCode}
+                          className={`px-3 py-1 rounded-full border text-sm transition cursor-pointer ${product.categoryCode === leafCode
+                            ? "bg-black text-white border-black"
+                            : "bg-gray-100 border-gray-200 hover:bg-gray-200"
+                            }`}
+                          onClick={() => handleChange("categoryCode", leafCode)}
+                        >
+                          {leafName}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {product.categoryCode && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      선택된 카테고리: {product.categoryCode}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* 가격 / 재고 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Input
-                  label="재고"
+                  label="소비자가"
                   type="number"
-                  value={product.stock}
+                  value={product.consumerPrice ?? 0}
                   onChange={(e) =>
-                    handleChange("stock", Number(e.target.value))
+                    handleChange("consumerPrice", Number(e.target.value))
                   }
                 />
-              )}
-            </div>
-
-            {/* 상품 상태 / 노출 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  상품 상태
-                </label>
-                <select
-                  value={product.productStatus}
+                <Input
+                  label="기본 판매가"
+                  type="number"
+                  value={product.sellPrice}
                   onChange={(e) =>
-                    handleChange("productStatus", Number(e.target.value))
+                    handleChange("sellPrice", Number(e.target.value))
                   }
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                >
-                  <option value={10}>정상</option>
-                  <option value={20}>품절</option>
-                  <option value={21}>재고확보중</option>
-                  <option value={40}>판매중지</option>
-                  <option value={90}>판매종료</option>
-                </select>
+                />
+                {!product.isOption && (
+                  <Input
+                    label="재고"
+                    type="number"
+                    value={product.stock}
+                    onChange={(e) =>
+                      handleChange("stock", Number(e.target.value))
+                    }
+                  />
+                )}
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  상품 노출 여부
-                </label>
-                <select
-                  value={product.isShow ? "yes" : "no"}
-                  onChange={(e) =>
-                    handleChange("isShow", e.target.value === "yes")
-                  }
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="yes">노출</option>
-                  <option value="no">숨김</option>
-                </select>
-              </div>
-            </div>
-
-            {/* 옵션 상품 여부 */}
-            <div className="flex items-center mt-4">
-              <input
-                type="checkbox"
-                checked={product.isOption}
-                onChange={(e) => handleChange("isOption", e.target.checked)}
-              />
-              <span className="ml-2 text-sm">옵션 상품 여부</span>
-            </div>
-
-            {/* 총 재고 표시 (옵션 상품일 경우 합산된 재고 값 표시) */}
-            <div className="mb-4">
-              {product.isOption ? (
+              {/* 상품 상태 / 노출 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold">총 재고: {totalStock}</h3>
-                </div>
-              ) : (
-                <div>
-                  <h3 className="font-semibold">총 재고: {product.stock}</h3>
-                </div>
-              )}
-            </div>
-
-            {/* 옵션 목록 */}
-            {product.isOption && (
-              <div className="flex flex-col gap-3 mt-4">
-                <div className="flex justify-between items-center">
-                  <p className="font-semibold text-gray-700">옵션 목록</p>
-                  <button
-                    type="button"
-                    onClick={addOption}
-                    className="w-6 h-6 flex mx-2 items-center justify-center bg-black text-white rounded-full cursor-pointer"
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    상품 상태
+                  </label>
+                  <select
+                    value={product.productStatus}
+                    onChange={(e) =>
+                      handleChange("productStatus", Number(e.target.value))
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm"
                   >
-                    <Plus size={14} />
-                  </button>
+                    <option value={10}>정상</option>
+                    <option value={20}>품절</option>
+                    <option value={21}>재고확보중</option>
+                    <option value={40}>판매중지</option>
+                    <option value={90}>판매종료</option>
+                  </select>
                 </div>
 
-                {product.options.map((opt, idx) => {
-                  const base = product.sellPrice || 0;
-                  const extra = opt.extraPrice || 0;
-                  const finalPrice = base + extra;
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    상품 노출 여부
+                  </label>
+                  <select
+                    value={product.isShow ? "yes" : "no"}
+                    onChange={(e) =>
+                      handleChange("isShow", e.target.value === "yes")
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  >
+                    <option value="yes">노출</option>
+                    <option value="no">숨김</option>
+                  </select>
+                </div>
+              </div>
 
-                  return (
-                    <div
-                      key={idx}
-                      className="flex flex-col md:flex-col gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200"
+              {/* 옵션 상품 여부 */}
+              <div className="flex items-center mt-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={product.isOption}
+                    onChange={(e) => handleChange("isOption", e.target.checked)}
+                    className="cursor-pointer"
+                  />
+                  <span className="ml-2 text-sm cursor-pointer">
+                    옵션 상품 여부
+                  </span>
+                </label>
+              </div>
+
+              {/* 총 재고 표시 (옵션 상품일 경우 합산된 재고 값 표시) */}
+              <div className="mb-4">
+                {product.isOption ? (
+                  <div>
+                    <h3 className="font-semibold">총 재고: {totalStock}</h3>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="font-semibold">총 재고: {product.stock}</h3>
+                  </div>
+                )}
+              </div>
+
+              {/* 옵션 목록 */}
+              {product.isOption && (
+                <div className="flex flex-col gap-3 mt-4">
+                  <div className="flex justify-between items-center">
+                    <p className="font-semibold text-gray-700">옵션 목록</p>
+                    <button
+                      type="button"
+                      onClick={addOption}
+                      className="w-6 h-6 flex mx-2 items-center justify-center bg-black text-white rounded-full cursor-pointer"
                     >
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-xs font-semibold mb-1">
-                            옵션 타입
-                          </label>
-                          <select
-                            value={opt.optionType}
+                      <Plus size={14} />
+                    </button>
+                  </div>
+
+                  {product.options.map((opt, idx) => {
+                    const base = product.sellPrice || 0;
+                    const extra = opt.extraPrice || 0;
+                    const finalPrice = base + extra;
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex flex-col md:flex-col gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200"
+                      >
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs font-semibold mb-1">
+                              옵션 타입
+                            </label>
+                            <select
+                              value={opt.optionType}
+                              onChange={(e) =>
+                                updateOption(
+                                  idx,
+                                  "optionType",
+                                  e.target.value as "N" | "C"
+                                )
+                              }
+                              className="w-full border rounded px-2 py-1 text-sm"
+                            >
+                              <option value="N">일반</option>
+                              <option value="C">색상</option>
+                            </select>
+                          </div>
+
+                          <Input
+                            label="옵션 제목"
+                            value={opt.optionTitle}
+                            onChange={(e) =>
+                              updateOption(idx, "optionTitle", e.target.value)
+                            }
+                            placeholder="예: 색상, 사이즈"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2">
+                          <Input
+                            label="옵션 값"
+                            value={opt.optionValue}
+                            onChange={(e) =>
+                              updateOption(idx, "optionValue", e.target.value)
+                            }
+                            placeholder="예: Ivory, Green"
+                          />
+                          <Input
+                            label="추가금"
+                            type="number"
+                            value={opt.extraPrice ?? 0}
                             onChange={(e) =>
                               updateOption(
                                 idx,
-                                "optionType",
-                                e.target.value as "N" | "C"
+                                "extraPrice",
+                                Number(e.target.value)
                               )
                             }
-                            className="w-full border rounded px-2 py-1 text-sm"
-                          >
-                            <option value="N">일반</option>
-                            <option value="C">색상</option>
-                          </select>
-                        </div>
-
-                        <Input
-                          label="옵션 제목"
-                          value={opt.optionTitle}
-                          onChange={(e) =>
-                            updateOption(idx, "optionTitle", e.target.value)
-                          }
-                          placeholder="예: 색상, 사이즈"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2">
-                        <Input
-                          label="옵션 값"
-                          value={opt.optionValue}
-                          onChange={(e) =>
-                            updateOption(idx, "optionValue", e.target.value)
-                          }
-                          placeholder="예: Ivory, Green"
-                        />
-                        <Input
-                          label="추가금"
-                          type="number"
-                          value={opt.extraPrice ?? 0}
-                          onChange={(e) =>
-                            updateOption(
-                              idx,
-                              "extraPrice",
-                              Number(e.target.value)
-                            )
-                          }
-                        />
-                        <Input
-                          label="재고"
-                          type="number"
-                          value={opt.stock}
-                          onChange={(e) =>
-                            updateOption(idx, "stock", Number(e.target.value))
-                          }
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2">
-                        {/* 최종 가격 프리뷰 */}
-                        <div className="text-xs text-gray-600">
-                          기본가 {base.toLocaleString()}원 + 추가금{" "}
-                          {extra.toLocaleString()}원 ={" "}
-                          <span className="font-semibold text-black">
-                            {finalPrice.toLocaleString()}원
-                          </span>
-                        </div>
-
-                        {opt.optionType === "C" && (
-                          <div className="flex-1">
-                            <Input
-                              label="색상 코드"
-                              value={opt.colorCode || ""}
-                              onChange={(e) =>
-                                updateOption(idx, "colorCode", e.target.value)
-                              }
-                              placeholder="#FFFFFF"
-                            />
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2">
-                          <label className="text-xs font-semibold">노출</label>
-                          <input
-                            type="checkbox"
-                            checked={opt.isShow}
+                          />
+                          <Input
+                            label="재고"
+                            type="number"
+                            value={opt.stock}
                             onChange={(e) =>
-                              updateOption(idx, "isShow", e.target.checked)
+                              updateOption(idx, "stock", Number(e.target.value))
                             }
                           />
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => removeOption(idx)}
-                          className="p-2 text-red-500 hover:text-red-700 cursor-pointer"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                        <div className="flex items-center justify-between gap-2">
+                          {/* 최종 가격 프리뷰 */}
+                          <div className="text-xs text-gray-600">
+                            기본가 {base.toLocaleString()}원 + 추가금{" "}
+                            {extra.toLocaleString()}원 ={" "}
+                            <span className="font-semibold text-black">
+                              {finalPrice.toLocaleString()}원
+                            </span>
+                          </div>
 
-            {/* 저장 버튼 */}
-            <Button className="w-full mt-6 py-3 text-lg" onClick={handleSave}>
-              상품 수정
-            </Button>
+                          {opt.optionType === "C" && (
+                            <div className="flex-1">
+                              <Input
+                                label="색상 코드"
+                                value={opt.colorCode || ""}
+                                onChange={(e) =>
+                                  updateOption(idx, "colorCode", e.target.value)
+                                }
+                                placeholder="#FFFFFF"
+                              />
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2">
+                            <label className="text-xs font-semibold">노출</label>
+                            <input
+                              type="checkbox"
+                              checked={opt.isShow}
+                              onChange={(e) =>
+                                updateOption(idx, "isShow", e.target.checked)
+                              }
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => removeOption(idx)}
+                            className="p-2 text-red-500 hover:text-red-700 cursor-pointer"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* 저장 버튼 */}
+              <Button className="w-full mt-6 py-3 text-lg" onClick={handleSave}>
+                상품 수정
+              </Button>
             </div>
           </div>
 
@@ -774,7 +780,7 @@ export default function ProductEditPage() {
               value={product.description || ""}
               onChange={(e) => handleChange("description", e.target.value)}
             />
-    
+
             {/* 블록 미리보기 */}
             <div className="mt-4 space-y-4">
               {product.blocks?.map((block, idx) => (
@@ -789,7 +795,7 @@ export default function ProductEditPage() {
               ))}
             </div>
           </div>
-          
+
         </div>
       </div>
     </div>
