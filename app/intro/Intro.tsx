@@ -1,50 +1,66 @@
 "use client";
-import Intro from "./Intro";
 
-<<<<<<< HEAD
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-export default function IntroPage() {
-  const introLines = ["Your Daily", "Journey"];
-  const [mounted, setMounted] = useState(false);
-  const router = useRouter();
+export interface IntroProps {
+  onFinish: () => void; // onFinish를 prop으로 받음
+}
 
+export default function Intro({ onFinish }: IntroProps) {
+  const router = useRouter();
+  const introLines = ["Your Daily", "Journey"];
+  const [ready, setReady] = useState(false);
+
+  // 🔥 hydration 안전하게 만들기
   useEffect(() => {
+    setReady(true);
+  }, []);
+
+  // 🔥 CSR이 된 후에만 introSeen 체크
+  useEffect(() => {
+    if (!ready) return;
+
     const seen = sessionStorage.getItem("introSeen");
 
     if (seen === "true") {
-      router.replace("/"); // 이미 본 경우 즉시 이동
+      router.replace("/");
       return;
     }
-
-    setMounted(true);
 
     const timer = setTimeout(() => {
       sessionStorage.setItem("introSeen", "true");
       router.replace("/");
+      onFinish();  // 인트로 끝난 후 onFinish 호출
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [ready, router, onFinish]);
 
-  const handleClick = () => {
+  const goHome = () => {
     sessionStorage.setItem("introSeen", "true");
     router.replace("/");
+    onFinish();  // 버튼 클릭 시에도 호출
   };
+
+  // 🔥 line 길이에 맞춰 랜덤 딜레이 2줄 생성
+  const delays = useMemo(() => {
+    return introLines.map((line) =>
+      line
+        .split("")
+        .map((_, i) => i)
+        .sort(() => Math.random() - 0.5)
+        .map((i) => i * 0.1)
+    );
+  }, []);
+
+  if (!ready) return null;
 
   const renderLine = (line: string, lineIdx: number) => {
     const chars = line.split("");
 
-    const delays = mounted
-      ? chars
-          .map((_, i) => i)
-          .sort(() => Math.random() - 0.5)
-          .map((i) => i * 0.1)
-      : chars.map(() => 0);
-
     return chars.map((char, idx) => {
-      const delay = delays[idx];
+      const delay = delays[lineIdx][idx];
 
       if (lineIdx === 1 && char.toLowerCase() === "o") {
         return (
@@ -82,21 +98,11 @@ export default function IntroPage() {
       ))}
 
       <button
-        onClick={handleClick}
+        onClick={goHome}
         className="mt-10 px-8 py-4 bg-gray-700 text-white rounded-full text-xl font-semibold cursor-pointer"
       >
         Shop Now
       </button>
     </div>
   );
-=======
-export default function IntroPage() {
-  // onFinish 함수 정의
-  const handleIntroFinish = () => {
-    // 인트로가 끝났을 때 실행될 동작
-    console.log("Intro finished!");
-  };
-
-  return <Intro onFinish={handleIntroFinish} />;
->>>>>>> 9124a2e0970729e480d1a024e1454d1cc7f80d42
 }

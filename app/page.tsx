@@ -22,6 +22,12 @@ interface MainCategory {
 }
 
 export default function HomePage() {
+<<<<<<< HEAD
+=======
+  // ⭐ 처음엔 무조건 인트로 띄우고 CSR 이후에 판단 (배포환경에서 가장 안정적)
+  const [showIntro, setShowIntro] = useState(true);
+
+>>>>>>> 9124a2e0970729e480d1a024e1454d1cc7f80d42
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const BASE = process.env.NEXT_PUBLIC_IMAGE_BASE_URL;
 
@@ -36,6 +42,11 @@ export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
 
+    // 인트로가 끝나면 호출될 함수
+  const handleIntroFinish = () => {
+    setShowIntro(false); // 인트로 완료 후 화면을 바꿈
+  };
+
   const bannerImages = [
     "/images/banner1.png",
     "/images/banner2.png",
@@ -45,6 +56,21 @@ export default function HomePage() {
   const truncate = (text: string, max = 15) =>
     text.length > max ? text.slice(0, max) + "..." : text;
 
+<<<<<<< HEAD
+=======
+
+  // ⭐ 인트로 체크 (CSR 이후)
+  useEffect(() => {
+    const seen = sessionStorage.getItem("introSeen");
+
+    if (seen === "true") {
+      setShowIntro(false);
+    } else {
+      setShowIntro(true);
+    }
+  }, []);
+
+>>>>>>> 9124a2e0970729e480d1a024e1454d1cc7f80d42
   // ▣ Main categories
   useEffect(() => {
     fetch(`${API_URL}/api/categories/main`)
@@ -76,20 +102,29 @@ export default function HomePage() {
   const filteredProducts =
     selectedMain && categoryTree
       ? (() => {
-        const midList = categoryTree[selectedMain].children;
-        const leafCodes = Object.values(midList).flatMap(
-          (mid: any) => Object.keys(mid.children)
-        );
-        return products.filter((p) => leafCodes.includes(p.categoryCode));
-      })()
+          const midList = categoryTree[selectedMain].children;
+          const leafCodes = Object.values(midList).flatMap(
+            (mid: any) => Object.keys(mid.children)
+          );
+          return products.filter((p) => leafCodes.includes(p.categoryCode));
+        })()
       : products;
 
   const totalPages = Math.ceil(filteredProducts.length / pageSize);
   const startIdx = (currentPage - 1) * pageSize;
   const currentProducts = filteredProducts.slice(startIdx, startIdx + pageSize);
 
+<<<<<<< HEAD
   // 렌더링
   return (
+=======
+  if (showIntro) return <IntroPage />; // 체크 완료 전 렌더링 X
+
+  // ▣ 렌더링
+  return showIntro ? (
+    <IntroPage />
+  ) : (
+>>>>>>> 9124a2e0970729e480d1a024e1454d1cc7f80d42
     <div className="w-full overflow-x-hidden">
 
       {/* ▣ 1. 배너 */}
