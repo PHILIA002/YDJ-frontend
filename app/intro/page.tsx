@@ -1,7 +1,5 @@
 "use client";
-import Intro from "./Intro";
 
-<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -89,14 +87,4 @@ export default function IntroPage() {
       </button>
     </div>
   );
-=======
-export default function IntroPage() {
-  // onFinish 함수 정의
-  const handleIntroFinish = () => {
-    // 인트로가 끝났을 때 실행될 동작
-    console.log("Intro finished!");
-  };
-
-  return <Intro onFinish={handleIntroFinish} />;
->>>>>>> 9124a2e0970729e480d1a024e1454d1cc7f80d42
 }
